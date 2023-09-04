@@ -1,7 +1,4 @@
-; Exemplo.s
 ; Desenvolvido para a placa EK-TM4C1294XL
-; Prof. Guilherme Peron
-; 12/03/2018
 
 ; -------------------------------------------------------------------------------
         THUMB                        ; Instruções do tipo Thumb-2
@@ -41,9 +38,9 @@ Start
 	
 	LDR		R4, =BASE_RAM_ADDR 	; Occurrence vector address
 	MOVS	R5, #26				; Occurrence vector size (26 letters of the alphabet)
-	MOV		R6, #0				; Initialize R6 to zero
+	MOVS	R6, #0				; Initialize R6 to zero
 	
-	MOV		R7, #0				; Initialize occurrence vector with zeros
+	MOVS	R7, #0				; Initialize occurrence vector with zeros
 
 ; Write data to a sequential memory area
 INIT_VECTOR
@@ -74,7 +71,7 @@ SCAN_LOOP
     BLE		SCAN_LOOP
 	
 	; If current count is greater, update max count
-    MOV		R3, R7
+    MOVS	R3, R7
     STRB	R3, [R8]			; Update memory position MAX_COUNT_ADDR
 
     B		SCAN_LOOP
