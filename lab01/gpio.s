@@ -111,7 +111,7 @@ GPIO_Init
 			ORR     R1, #GPIO_PORTJ					; Seta o bit da porta J, fazendo com OR
 			ORR     R1, #GPIO_PORTP					; Seta o bit da porta P, fazendo com OR
 			ORR     R1, #GPIO_PORTQ					; Seta o bit da porta Q, fazendo com OR
-            STR     R1, [R0]						; Move para a memória os bits das portas no endereço do RCGCGPIO
+			STR     R1, [R0]						; Move para a memória os bits das portas no endereço do RCGCGPIO
  
             LDR     R0, =SYSCTL_PRGPIO_R			; Carrega o endereço do PRGPIO para esperar os GPIO ficarem prontos
 EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do registrador
@@ -120,15 +120,15 @@ EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do regi
 			ORR     R2, #GPIO_PORTJ                 ; Seta o bit da porta J, fazendo com OR
 			ORR     R2, #GPIO_PORTP                 ; Seta o bit da porta P, fazendo com OR
 			ORR     R2, #GPIO_PORTQ                 ; Seta o bit da porta Q, fazendo com OR
-            TST     R1, R2							; Testa o R1 com R2 fazendo R1 & R2
-            BEQ     EsperaGPIO					    ; Se o flag Z=1, volta para o laço. Senão continua executando
+			TST     R1, R2							; Testa o R1 com R2 fazendo R1 & R2
+			BEQ     EsperaGPIO					    ; Se o flag Z=1, volta para o laço. Senão continua executando
  
 ; 2. Limpar o AMSEL para desabilitar a analógica
             MOV     R1, #0x00						; Colocar 0 no registrador para desabilitar a função analógica
-            LDR     R0, =GPIO_PORTA_AHB_AMSEL_R     ; Carrega o R0 com o endereço do AMSEL para a porta A
+			LDR     R0, =GPIO_PORTA_AHB_AMSEL_R     ; Carrega o R0 com o endereço do AMSEL para a porta A
             STR     R1, [R0]						; Guarda no registrador AMSEL da porta A da memória
 			
-            LDR     R0, =GPIO_PORTB_AHB_AMSEL_R		; Carrega o R0 com o endereço do AMSEL para a porta B
+			LDR     R0, =GPIO_PORTB_AHB_AMSEL_R		; Carrega o R0 com o endereço do AMSEL para a porta B
             STR     R1, [R0]					    ; Guarda no registrador AMSEL da porta B da memória
 			
 			LDR     R0, =GPIO_PORTJ_AHB_AMSEL_R		; Carrega o R0 com o endereço do AMSEL para a porta J
@@ -142,7 +142,7 @@ EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do regi
  
 ; 3. Limpar PCTL para selecionar o GPIO
             MOV     R1, #0x00					    ; Colocar 0 no registrador para selecionar o modo GPIO
-            LDR     R0, =GPIO_PORTA_AHB_PCTL_R		; Carrega o R0 com o endereço do PCTL para a porta A
+			LDR     R0, =GPIO_PORTA_AHB_PCTL_R		; Carrega o R0 com o endereço do PCTL para a porta A
             STR     R1, [R0]                        ; Guarda no registrador PCTL da porta A da memória
 			
 			LDR     R0, =GPIO_PORTB_AHB_PCTL_R		; Carrega o R0 com o endereço do PCTL para a porta B
@@ -167,8 +167,8 @@ EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do regi
             STR     R1, [R0]						; Guarda no registrador
 			
 			; O certo era verificar os outros bits da PJ para não transformar entradas em saídas desnecessárias
-            LDR     R0, =GPIO_PORTJ_AHB_DIR_R		; Carrega o R0 com o endereço do DIR para a porta J
-            MOV     R1, #0x00               		; Colocar 0 no registrador DIR para funcionar com saída PJ1 e PJ0
+			LDR     R0, =GPIO_PORTJ_AHB_DIR_R		; Carrega o R0 com o endereço do DIR para a porta J
+			MOV     R1, #0x00               		; Colocar 0 no registrador DIR para funcionar com saída PJ1 e PJ0
             STR     R1, [R0]						; Guarda no registrador PCTL da porta J da memória
 			
 			LDR     R0, =GPIO_PORTP_DIR_R			; Carrega o R0 com o endereço do DIR para a porta P
@@ -186,7 +186,7 @@ EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do regi
             LDR     R0, =GPIO_PORTA_AHB_AFSEL_R		; Carrega o endereço do AFSEL da porta A
             STR     R1, [R0]						; Escreve na porta
 			
-            LDR     R0, =GPIO_PORTB_AHB_AFSEL_R     ; Carrega o endereço do AFSEL da porta B
+			LDR     R0, =GPIO_PORTB_AHB_AFSEL_R     ; Carrega o endereço do AFSEL da porta B
             STR     R1, [R0]                        ; Escreve na porta
 			
 			LDR     R0, =GPIO_PORTJ_AHB_AFSEL_R     ; Carrega o endereço do AFSEL da porta J
@@ -200,7 +200,7 @@ EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do regi
 			
 ; 6. Setar os bits de DEN para habilitar I/O digital
 			; Escrita amigável - Read-modify-write
-            LDR     R0, =GPIO_PORTA_AHB_DEN_R		; Carrega o endereço do DEN
+			LDR     R0, =GPIO_PORTA_AHB_DEN_R		; Carrega o endereço do DEN
 			LDR     R1, [R0]						; Lê para carregar o valor anterior da porta inteira
             ORR     R1, R1, #2_11110000             ; Faz o OR bit a bit para manter os valores anteriores e setar somente PA7:PA4
             STR     R1, [R0]						; Escreve no registrador da memória funcionalidade digital
@@ -282,7 +282,7 @@ PortP_Output
 PortQ_Output
 	LDR	R1, =GPIO_PORTQ_DATA_R		    	; Carrega o valor do offset do data register
 	; Read-Modify-Write para escrita
-	LDR R2, [R1]
+	LDR	R2, [R1]
 	BIC R2, #2_00001111						; Máscara com bits 1 nas posições que queremos limpar PQ3:PQ0
 	ORR R0, R0, R2                          ; Fazer o OR do lido pela porta com o parâmetro de entrada
 	STR R0, [R1]                            ; Escreve na porta Q
