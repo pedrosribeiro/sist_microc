@@ -9,7 +9,7 @@
 ; Declarações EQU - Defines
 ;<NOME>         EQU <VALOR>
 ; ========================
-
+MULT_RAM_ADDR 	EQU 0x20000400
 ; -------------------------------------------------------------------------------
 ; Área de Dados - Declarações de variáveis
 		AREA  DATA, ALIGN=2
@@ -42,6 +42,8 @@
 		IMPORT	PortP_Output		; Permite chamar PortP_Output de outro arquivo
 		IMPORT	PortQ_Output		; Permite chamar PortQ_Output de outro arquivo			
 
+; Mapeamento dos 7 segmentos (0 a F)
+MAPEAMENTO_7SEG DCB	0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F, 0x77, 0x7C, 0x39, 0x5E, 0x79, 0x71
 ; -------------------------------------------------------------------------------
 ; Função main()
 Start  		
@@ -49,256 +51,148 @@ Start
 	BL SysTick_Init				; Chama a subrotina para inicializar o SysTick
 	BL GPIO_Init                ; Chama a subrotina que inicializa os GPIO
 	
-	MOV	R4,	#1					; Tabuada = 1 (Começa na tabuada do 1)
-	MOV R5, #1					; Multiplicador = 1 (Começa com multiplicador 1)
-	
-	MOV R6, #0					; Enables dos Displays 7-seg (DS1 e DS2) e LEDs (LED0:LED8)
-	
-	MOV R7, #0					; Resultado da multiplicação entre R4 e R5
-	
-	MOV R8, #0					; Tempo para trocar os números
-	
-	MOV R9, #0					; Contador das dezenas
-	MOV R10,#0					; Contador das unidades
-	
-	MOV	R11, #2_10000000		; LEDs (indica a tabuada atual, então começa com o primeiro ligado)
-	MOV R12, #2_10000000		; LEDs (registrador auxiliar)
+	MOV R4, #2_11				; Estado dos botões
+	MOV R5, #1					; Tabuada
+	MOV R6, #1					; Multiplicador
+	MUL R7, R5, R6				; Resultado da multiplicação (R5xR6)
 
 MainLoop
 	BL PortJ_Input				; Chama a subrotina que lê o estado das chaves e coloca o resultado em R0
-
-VerificaNenhuma					; Verifica se nenhuma chave está pressionada (Pressionada -> 0)
-	CMP	R0, #2_00000011
-	BNE	VerificaSW1				; Testa SW1
-	BEQ	InitDisplaysLEDs		; Inicializa os displays e os LEDs
-	B	MainLoop				; Retoma o loop principal
+	
+	CMP R0, R4					; Verifica se o estado dos botões mudou
+	BEQ MultiplicaAtualiza		; Se não, somente imprime
+			
+	BIC R3, R4, R0				; Verifica a transição do estado dos botões (Solto -> pressionado)
 
 VerificaSW1
-	CMP	R0, #2_00000010			; Verifica se apenas SW1 está pressionada
+	CMP R3, #2_00000010			; Verifica se apenas SW1 está pressionada
 	BNE	VerificaSW2				; Testa SW2
-	BEQ	IncrementaTabuada		; Incrementa a tabuada
-	BX LR						; Volta para VerificaNenhuma
 	
-VerificaSW2
-	CMP	R0, #2_00000001			; Verifica se apenas SW2 está pressionada
-	BEQ	IncrementaMultiplicador	; Incrementa o multiplicador
-	BX LR						; Volta para VerificaSW1
+	ADD R6, R6, #1				; Incrementa o multiplicador
+			
+	CMP R6, #0X9				; Verifica se já o mutiplicador já passou de 9
+	IT HI
+		MOVHI R6, #0			; Se sim, volta para 0
+	
+	LDR	R12, =MULT_RAM_ADDR		; Carrega o endereço para guardar o multiplicador na RAM
+	STRB R6, [R12]				; Guarda o valor do multiplicador atual
 
-IncrementaTabuada
-	CMP		R4, #8				; Verifica se chegou na tabuada do 8 (última)
-	ADDNE	R4, R4, #1			; Se não chegou, incrementa
-	MOVEQ	R4, #1				; Se já chegou na tabuada do 8, volta para a tabuada do 1
+VerificaSW2	
+	CMP R3, #2_00000001			; Verifica se apenas SW2 está pressionada
+	BNE MultiplicaAtualiza
+		
+	ADD R5, R5, #1				; Incrementa a tabuada
 	
-	BL MultExtraindoDigitos 	; Chamada da sub-rotina de multiplicação e extração de dígitos
-	
-	MOV		R0, #150			; Atrasa 150ms
-	BL		SysTick_Wait1ms
-	B		MainLoop			; Retoma o loop principal
+	CMP R5, #0X8				; Verifica se a tabuada já passou de 8
+	IT HI
+		MOVHI R5, #1			; Se sim, volta para 1
 
-IncrementaMultiplicador
-	CMP		R5, #9				; Verifica se o multiplicador chegou em 9 (último)
-	ADDNE	R5, R5, #1			; Se não chegou, incrementa
-	MOVEQ	R5, #0				; Se já chegou no multiplicador 9, volta para o multiplicador 0
+MultiplicaAtualiza
+	MOV R4, R0					; Atualiza o estado dos botões
+	MUL R7, R5, R6				; Realiza a operação de multiplicação
 	
-	BL MultExtraindoDigitos 	; Chamada da sub-rotina de multiplicação e extração de dígitos
-	
-	MOV		R0, #150			; Atrasa 150ms
-	BL		SysTick_Wait1ms
-	B		MainLoop			; Retoma o loop principal
+	MOV R12, #10
+	UDIV R8, R7, R12			; Guarda o dígito da dezena em R8
+	MLS R9, R8, R12, R7			; Guarda o dígito da unidade em R9
 
-MultExtraindoDigitos
-	MUL R7, R4, R5   			; Multiplica R4 e R5 e armazena o resultado em R7
-	MOV R9, R7, LSR #4			; Move o dígito da dezena (4 bits mais significativos) para R9
-	AND R10, R7, #0xF			; Mascara os 4 bits menos significativos para obter o dígito da unidade
-	BX LR						; Retorna da sub-rotina
+Display
+	MOV R0, R9					; Envia o dígito da unidade para o DS1
+	BL WriteDS1
+	MOV R0, R8
+	BL WriteDS2					; Envia o dígito da dezena para o DS2
+	MOV R0, R5
+	BL WriteLEDs				; Envia o número da tabuada atual para os LEDs
+	
+	B MainLoop					; Depois de tudo atualizado, retoma o loop principal
 
-InitDisplaysLEDs
-	CMP R6, #0
-	BEQ EnableDS1				; Enable do DS1
+WriteLEDs
+	PUSH {LR}					; Guarda o endereço de retorno
 	
-	CMP R6, #1
-	BEQ EnableDS2				; Enable do DS2
-	
-	CMP R6, #2
-	BEQ EnableLEDs				; Enable doS LEDs
-	
-	MOV R6, #0					; Default enable
-	ADD R8, #1					; Cada atualização dos displays conta um tempo
-	
-	B MainLoop					; Retoma o loop principal
+	MOV R10, #0
+	MOV R11, R0					; Copia a base
 
-EnableDS1
-	MOV	R6, #1					; Prepara o enable do DS2
+LoadLEDs
+	CMP R11, #0
+	ITTTT HI					; Loop para carregar os devidos LEDs
+		LSLHI R10, R10, #1		; Desloca um bit para esquerda
+		ADDHI R10, R10, #1		; Incrementa um LED
+		SUBHI R11, R11, #1		; Decrementa o passo do loop
+		BHI LoadLEDs
 	
-	MOV	R0, #2_00000000			; Desativa o transistor dos LEDs (PP5)
-	BL	PortP_Output
+	AND R0, R10, #2_11110000	; Atualiza
+	BL PortA_Output
 	
-	MOV	R0, #2_00010000			; Ativa o transistor do DS1 (PB4)
-	BL	PortB_Output
-	
-	B	DS1						; Mostra o valor atual da dezena
+	AND R0, R10, #2_00001111	; Atualiza
+	BL PortQ_Output
 
-EnableDS2
-	MOV	R6, #2					; Prepara o enable dos LEDs
+	MOV R0, #2_00100000			; Ativa o transistor dos LEDs (PP5)
+	BL PortP_Output
 	
-	MOV	R0, #2_00100000			; Ativa o transistor do DS2 (PB5)
-	BL	PortB_Output
+	MOV R0, #1					; Atrasa 1ms
+	BL SysTick_Wait1ms
 	
-	B	DS2						; Mostra o valor atual da unidade
+	MOV R0, #2_00000000			; Desativa o transistor dos LEDs (PP5)
+	BL PortP_Output
+	
+	MOV R0, #1					; Atrasa 1ms
+	BL SysTick_Wait1ms
+	
+	POP {LR}
+	BX LR						; Retoma
 
-EnableLEDs
-	MOV	R6, #3					; Para o enable em um valor inválido para não entrar mais no Init
+WriteDS1
+	PUSH {LR}					; Guarda o endereço de retorno
 	
-	MOV	R0, #2_00000000			; Desativa os transistores dos displays
-	BL	PortB_Output
+	LDR  R11, =MAPEAMENTO_7SEG	; Desloca escolhendo o respectivo número das dezenas
+	LDRB R10, [R11, R0]
 	
-	MOV	R0, #2_00100000			; Ativa o transistor dos LEDs (PP5)
-	BL	PortP_Output
+	AND R0, R10, #2_11110000	; Atualiza
+	BL PortA_Output
 	
-	MOV	R0,	R11					; Acende os LEDs
-	B	Saida
+	AND R0, R10, #2_00001111	; Atualiza
+	BL PortQ_Output
 
-DS1								; Display das dezenas
-	CMP	R9, #0
-	BEQ Zero
+	MOV R0, #2_00100000			; Ativa o transistor do DS2 (PB5)
+	BL PortB_Output
 	
-	CMP	R9, #1
-	BEQ	Um
+	MOV R0, #1					; Atrasa 1ms
+	BL SysTick_Wait1ms
 	
-	CMP	R9, #2
-	BEQ	Dois
+	MOV R0, #2_00000000			; Desativa o transistor do DS2 (PB5)
+	BL PortB_Output
 	
-	CMP	R9, #3		
-	BEQ	Tres
+	MOV R0, #1					; Atrasa 1ms
+	BL SysTick_Wait1ms
 	
-	CMP	R9, #4
-	BEQ	Quatro
-	
-	CMP	R9, #5
-	BEQ	Cinco
-	
-	CMP	R9, #6
-	BEQ	Seis
-	
-	CMP	R9, #7
-	BEQ	Sete					; O valor máximo a ser mostrado é 72 (8x9)
-	
-	BGT	OitoDS1					; Zera DS1 corrigindo DS2
+	POP {LR}
+	BX LR						; Retoma
 
-DS2								; Display das unidades
-	CMP	R10, #0
-	BEQ	Zero
+WriteDS2
+	PUSH {LR}					; Guarda o endereço de retorno
 	
-	CMP	R10, #1
-	BEQ	Um
+	LDR  R11, =MAPEAMENTO_7SEG	; Desloca escolhendo o respectivo número das unidades
+	LDRB R10, [R11, R0]
 	
-	CMP	R10, #2
-	BEQ	Dois
+	AND R0, R10, #2_11110000	; Atualiza
+	BL PortA_Output
 	
-	CMP	R10, #3
-	BEQ	Tres
+	AND R0, R10, #2_00001111	; Atualiza
+	BL PortQ_Output
+
+	MOV R0, #2_00010000			; Ativa o transistor do DS1 (PB4)
+	BL PortB_Output
 	
-	CMP	R10, #4
-	BEQ	Quatro
+	MOV R0, #1					; Atrasa 1ms
+	BL SysTick_Wait1ms
 	
-	CMP	R10, #5
-	BEQ	Cinco
+	MOV R0, #2_00000000			; Desativa o transistor do DS1 (PB4)
+	BL PortB_Output
 	
-	CMP	R10, #6
-	BEQ	Seis
+	MOV R0, #1					; Atrasa 1ms
+	BL SysTick_Wait1ms
 	
-	CMP	R10, #7
-	BEQ	Sete
-	
-	CMP	R10, #8
-	BEQ	Oito
-	
-	CMP	R10, #9
-	BEQ	Nove
-	
-	BGT	DezDS2					; Incrementa DS1 quando DS2 > 9
-
-Zero
-	MOV	R0, #2_00111111
-	B	Saida
-
-Um
-	MOV	R0, #2_00000110
-	B	Saida
-
-Dois
-	MOV	R0, #2_01011011
-	B	Saida
-
-Tres
-	MOV	R0, #2_01001111
-	B	Saida
-
-Quatro
-	MOV	R0, #2_01100110
-	B	Saida
-
-Cinco
-	MOV	R0, #2_01101101
-	B	Saida
-
-Seis
-	MOV	R0, #2_01111101
-	B	Saida
-
-Sete
-	MOV	R0, #2_00000111
-	B	Saida
-
-Oito
-	MOV	R0, #2_01111111
-	B	Saida
-
-Nove
-	MOV	R0, #2_01101111
-	B	Saida
-
-OitoDS1
-	MOV	R9, #0						; Contador de dezenas vai pra 0
-	MOV	R6, #1						; Enable DS2
-	B	MainLoop					; Retoma o loop principal
-
-DezDS2
-	SUB	R10, R10, #10				; Contador de unidades joga uma dezena fora
-	ADD	R9, #1						; Incrementa o contador das dezenas
-	MOV	R6, #0						; Enable DS1
-	B	MainLoop					; Retoma o loop principal
-
-Saida
-	BL	PortA_Output				; LEDs
-	BL	PortQ_Output				; Displays
-	
-	MOV	R0, #5						; Atrasa 5ms
-	BL	SysTick_Wait1ms
-	
-	CMP	R8,	#40						; Tempo para trocar de número
-	BEQ	AcendeLEDs
-	
-	B	MainLoop					; Retoma o loop principal
-
-AcendeLEDs							; Executado a cada tempo
-	MOV	R8, #0						; Volta o tempo para zero
-	
-	CMP R11, #2_11111111			; Verifica se todos os LEDs estão acesos
-	
-	BNE AcendeProxLED				; Se não estão, acende o próximo
-	BEQ ResetLEDs					; Se estão, apaga todos
-
-AcendeProxLED
-	LSR	R12, R12 , #1				; Desloca o bit do auxiliar para a direita
-	ADD	R11, R11, R12				; Acende o próximo
-	
-	B	MainLoop					; Retoma o loop principal
-
-ResetLEDs
-	MOV	R11, #2_10000000			; Volta para a configuração inicial (tabuada do 1)
-	MOV	R12, #2_10000000
-	B	MainLoop					; Retoma o loop principal
+	POP {LR}
+	BX LR						; Retoma
 
 ; -------------------------------------------------------------------------------------------------------------------------
 ; Fim do Arquivo
