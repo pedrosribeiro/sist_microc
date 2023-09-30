@@ -51,7 +51,10 @@ Start
 	
 	MOV	R4,	#1					; Tabuada = 1 (Começa na tabuada do 1)
 	MOV R5, #1					; Multiplicador = 1 (Começa com multiplicador 1)
+	
 	MOV R6, #0					; Enables dos Displays 7-seg (DS1 e DS2) e LEDs (LED0:LED8)
+	
+	MOV R7, #0					; Resultado da multiplicação entre R4 e R5
 	
 	MOV R8, #0					; Tempo para trocar os números
 	
@@ -74,17 +77,20 @@ VerificaSW1
 	CMP	R0, #2_00000010			; Verifica se apenas SW1 está pressionada
 	BNE	VerificaSW2				; Testa SW2
 	BEQ	IncrementaTabuada		; Incrementa a tabuada
-	B	MainLoop				; Retoma o loop principal
+	BX LR						; Volta para VerificaNenhuma
 	
 VerificaSW2
 	CMP	R0, #2_00000001			; Verifica se apenas SW2 está pressionada
 	BEQ	IncrementaMultiplicador	; Incrementa o multiplicador
-	B	MainLoop				; Retoma o loop principal
+	BX LR						; Volta para VerificaSW1
 
 IncrementaTabuada
 	CMP		R4, #8				; Verifica se chegou na tabuada do 8 (última)
 	ADDNE	R4, R4, #1			; Se não chegou, incrementa
 	MOVEQ	R4, #1				; Se já chegou na tabuada do 8, volta para a tabuada do 1
+	
+	BL MultExtraindoDigitos 	; Chamada da sub-rotina de multiplicação e extração de dígitos
+	
 	MOV		R0, #150			; Atrasa 150ms
 	BL		SysTick_Wait1ms
 	B		MainLoop			; Retoma o loop principal
@@ -93,9 +99,18 @@ IncrementaMultiplicador
 	CMP		R5, #9				; Verifica se o multiplicador chegou em 9 (último)
 	ADDNE	R5, R5, #1			; Se não chegou, incrementa
 	MOVEQ	R5, #0				; Se já chegou no multiplicador 9, volta para o multiplicador 0
+	
+	BL MultExtraindoDigitos 	; Chamada da sub-rotina de multiplicação e extração de dígitos
+	
 	MOV		R0, #150			; Atrasa 150ms
 	BL		SysTick_Wait1ms
 	B		MainLoop			; Retoma o loop principal
+
+MultExtraindoDigitos
+	MUL R7, R4, R5   			; Multiplica R4 e R5 e armazena o resultado em R7
+	MOV R9, R7, LSR #4			; Move o dígito da dezena (4 bits mais significativos) para R9
+	AND R10, R7, #0xF			; Mascara os 4 bits menos significativos para obter o dígito da unidade
+	BX LR						; Retorna da sub-rotina
 
 InitDisplaysLEDs
 	CMP R6, #0
@@ -245,13 +260,13 @@ Nove
 
 OitoDS1
 	MOV	R9, #0						; Contador de dezenas vai pra 0
-	MOV	R6, #0						; Enable DS1
+	MOV	R6, #1						; Enable DS2
 	B	MainLoop					; Retoma o loop principal
 
 DezDS2
 	SUB	R10, R10, #10				; Contador de unidades joga uma dezena fora
-	MOV	R6, #1						; Enable DS2
 	ADD	R9, #1						; Incrementa o contador das dezenas
+	MOV	R6, #0						; Enable DS1
 	B	MainLoop					; Retoma o loop principal
 
 Saida
