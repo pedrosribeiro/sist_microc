@@ -133,7 +133,7 @@ EnableDS1
 	MOV	R0, #2_00000000			; Desativa o transistor dos LEDs (PP5)
 	BL	PortP_Output
 	
-	MOV	R0, #2_00010000			; Ativa o transistor do DS2
+	MOV	R0, #2_00010000			; Ativa o transistor do DS1 (PB4)
 	BL	PortB_Output
 	
 	B	DS1						; Mostra o valor atual da dezena
@@ -141,7 +141,7 @@ EnableDS1
 EnableDS2
 	MOV	R6, #2					; Prepara o enable dos LEDs
 	
-	MOV	R0, #2_00100000			; Ativa o transistor do DS1
+	MOV	R0, #2_00100000			; Ativa o transistor do DS2 (PB5)
 	BL	PortB_Output
 	
 	B	DS2						; Mostra o valor atual da unidade
