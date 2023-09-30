@@ -9,7 +9,7 @@
 ; Declarações EQU - Defines
 ;<NOME>         EQU <VALOR>
 ; ========================
-MULT_RAM_ADDR 	EQU 0x20000400
+BASE_RAM_ADDR 	EQU 0x20000400
 ; -------------------------------------------------------------------------------
 ; Área de Dados - Declarações de variáveis
 		AREA  DATA, ALIGN=2
@@ -55,6 +55,16 @@ Start
 	MOV R5, #1					; Tabuada
 	MOV R6, #1					; Multiplicador
 	MUL R7, R5, R6				; Resultado da multiplicação (R5xR6)
+	
+	; Registradores usados inicialmente para inicilizar o espaço de memória da RAM
+	MOV R10, #9					; Número de tabuadas
+	MOV R11, #0					; Zero
+	LDR R12, =BASE_RAM_ADDR		; Carrega o endereço base da RAM
+
+InitMemory						; Zera as posições de memória da base até a última tabuada
+	STRB	R11, [R12], #1		; Stores the value of R11 in memory at the address pointed to by R12 and then increments the value of R12 by 1 byte
+	SUBS	R10, R10, #1		; Decrements vector size
+	BNE		InitMemory
 
 MainLoop
 	BL PortJ_Input				; Chama a subrotina que lê o estado das chaves e coloca o resultado em R0
@@ -74,10 +84,10 @@ VerificaSW1
 	IT HI
 		MOVHI R6, #0			; Se sim, volta para 0
 	
-	LDR	R12, =MULT_RAM_ADDR		; Carrega o endereço para guardar o multiplicador na RAM
-	STRB R6, [R12]				; Guarda o valor do multiplicador atual
+	LDR	R12, =BASE_RAM_ADDR		; Carrega o endereço base da RAM
+	STRB R6, [R12, R5]			; Guarda o valor do multiplicador atual na sua posição correta (BASE deslocada por R5)
 
-VerificaSW2	
+VerificaSW2
 	CMP R3, #2_00000001			; Verifica se apenas SW2 está pressionada
 	BNE MultiplicaAtualiza
 		
@@ -88,6 +98,10 @@ VerificaSW2
 		MOVHI R5, #1			; Se sim, volta para 1
 
 MultiplicaAtualiza
+	LDR	R12, =BASE_RAM_ADDR		; Carrega o endereço base da RAM
+	LDRB R12, [R12, R5]			; Carrega o multiplicador da ocorrência anterior
+	MOV R6, R12					; Move para o multiplicador atual o valor do multiplicador anterior
+
 	MOV R4, R0					; Atualiza o estado dos botões
 	MUL R7, R5, R6				; Realiza a operação de multiplicação
 	
