@@ -45,7 +45,6 @@ BASE_RAM_ADDR 	EQU 0x20000400
 ; Mapeamento dos 7 segmentos (0 a F)
 MAPEAMENTO_7SEG DCB	0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F, 0x77, 0x7C, 0x39, 0x5E, 0x79, 0x71
 ; -------------------------------------------------------------------------------
-; Função main()
 Start  		
 	BL PLL_Init                 ; Chama a subrotina para alterar o clock do microcontrolador para 80MHz
 	BL SysTick_Init				; Chama a subrotina para inicializar o SysTick
@@ -57,26 +56,36 @@ Start
 	MUL R7, R5, R6				; Resultado da multiplicação (R5xR6)
 	
 	; Registradores usados inicialmente para inicilizar o espaço de memória da RAM
-	MOV R10, #9					; Número de tabuadas
-	MOV R11, #0					; Zero
+	MOV R10, #9					; Número de posições a serem zeradas a partir da base da RAM (tabuada do 0 até 8)
+	MOV R11, #1					; Carrega número 1 em todas as posições da memória (multiplicador começa em 1 para todos)
 	LDR R12, =BASE_RAM_ADDR		; Carrega o endereço base da RAM
 
 InitMemory						; Zera as posições de memória da base até a última tabuada
-	STRB	R11, [R12], #1		; Stores the value of R11 in memory at the address pointed to by R12 and then increments the value of R12 by 1 byte
-	SUBS	R10, R10, #1		; Decrements vector size
+	STRB	R11, [R12], #1		; Guarda o valor de R11 no endereço de memória apontado por R12 e desloca esse endereço em um byte
+	SUBS	R10, R10, #1		; Decrementa o tamanho de vetor
 	BNE		InitMemory
 
 MainLoop
 	BL PortJ_Input				; Chama a subrotina que lê o estado das chaves e coloca o resultado em R0
 	
 	CMP R0, R4					; Verifica se o estado dos botões mudou
-	BEQ MultiplicaAtualiza		; Se não, somente imprime
+	BEQ MultiplicaAtualiza		; Se não mudou, somente imprime
 			
-	BIC R3, R4, R0				; Verifica a transição do estado dos botões (Solto -> pressionado)
+	MOV R4, R0					; Se mudou, atualiza o estado dos botões e realiza a ação
 
 VerificaSW1
-	CMP R3, #2_00000010			; Verifica se apenas SW1 está pressionada
+	CMP R4, #2_00000010			; Verifica se apenas SW1 está pressionada
 	BNE	VerificaSW2				; Testa SW2
+	
+	ADD R5, R5, #1				; Incrementa a tabuada
+	
+	CMP R5, #0X8				; Verifica se a tabuada já passou de 8
+	IT HI
+		MOVHI R5, #1			; Se sim, volta para 1
+
+VerificaSW2
+	CMP R4, #2_00000001			; Verifica se apenas SW2 está pressionada
+	BNE MultiplicaAtualiza		; Se as duas ou nenhuma das chaves está pressionada, só continua atualizando
 	
 	ADD R6, R6, #1				; Incrementa o multiplicador
 			
@@ -87,33 +96,24 @@ VerificaSW1
 	LDR	R12, =BASE_RAM_ADDR		; Carrega o endereço base da RAM
 	STRB R6, [R12, R5]			; Guarda o valor do multiplicador atual na sua posição correta (BASE deslocada por R5)
 
-VerificaSW2
-	CMP R3, #2_00000001			; Verifica se apenas SW2 está pressionada
-	BNE MultiplicaAtualiza
-		
-	ADD R5, R5, #1				; Incrementa a tabuada
-	
-	CMP R5, #0X8				; Verifica se a tabuada já passou de 8
-	IT HI
-		MOVHI R5, #1			; Se sim, volta para 1
-
 MultiplicaAtualiza
 	LDR	R12, =BASE_RAM_ADDR		; Carrega o endereço base da RAM
 	LDRB R12, [R12, R5]			; Carrega o multiplicador da ocorrência anterior
 	MOV R6, R12					; Move para o multiplicador atual o valor do multiplicador anterior
 
-	MOV R4, R0					; Atualiza o estado dos botões
 	MUL R7, R5, R6				; Realiza a operação de multiplicação
 	
 	MOV R12, #10
-	UDIV R8, R7, R12			; Guarda o dígito da dezena em R8
-	MLS R9, R8, R12, R7			; Guarda o dígito da unidade em R9
+	UDIV R8, R7, R12			; Guarda o dígito das dezenas em R8
+	MLS R9, R8, R12, R7			; Guarda o dígito das unidades em R9 (R9 = R7 - (R8 * R12))
 
 Display
-	MOV R0, R9					; Envia o dígito da unidade para o DS1
-	BL WriteDS1
+	MOV R0, R9					
+	BL WriteDS2					; Envia o dígito das unidades para o DS2
+	
 	MOV R0, R8
-	BL WriteDS2					; Envia o dígito da dezena para o DS2
+	BL WriteDS1					; Envia o dígito das dezenas para o DS1
+	
 	MOV R0, R5
 	BL WriteLEDs				; Envia o número da tabuada atual para os LEDs
 	
@@ -122,8 +122,8 @@ Display
 WriteLEDs
 	PUSH {LR}					; Guarda o endereço de retorno
 	
-	MOV R10, #0
-	MOV R11, R0					; Copia a base
+	MOV R10, #0					; R10 usado para controlar quantos LEDs estão acesos
+	MOV R11, R0					; R11 guarda a informação de quantos LEDs devem acender (tabuada atual)
 
 LoadLEDs
 	CMP R11, #0
@@ -133,10 +133,10 @@ LoadLEDs
 		SUBHI R11, R11, #1		; Decrementa o passo do loop
 		BHI LoadLEDs
 	
-	AND R0, R10, #2_11110000	; Atualiza
+	AND R0, R10, #2_11110000	; Atualiza LED1:LED4 (PA7:PA4)
 	BL PortA_Output
 	
-	AND R0, R10, #2_00001111	; Atualiza
+	AND R0, R10, #2_00001111	; Atualiza LED5:LED8 (PQ3:PQ0)
 	BL PortQ_Output
 
 	MOV R0, #2_00100000			; Ativa o transistor dos LEDs (PP5)
@@ -154,16 +154,43 @@ LoadLEDs
 	POP {LR}
 	BX LR						; Retoma
 
-WriteDS1
+WriteDS1						; Recebe o dígito das dezenas
 	PUSH {LR}					; Guarda o endereço de retorno
 	
 	LDR  R11, =MAPEAMENTO_7SEG	; Desloca escolhendo o respectivo número das dezenas
 	LDRB R10, [R11, R0]
 	
-	AND R0, R10, #2_11110000	; Atualiza
+	AND R0, R10, #2_11110000	; Atualiza DSDP:DSE (PA7:PA4)
 	BL PortA_Output
 	
-	AND R0, R10, #2_00001111	; Atualiza
+	AND R0, R10, #2_00001111	; Atualiza DSD:DSA (PQ3:PQ0)
+	BL PortQ_Output
+	
+	MOV R0, #2_00010000			; Ativa o transistor do DS1 (PB4)
+	BL PortB_Output
+	
+	MOV R0, #1					; Atrasa 1ms
+	BL SysTick_Wait1ms
+	
+	MOV R0, #2_00000000			; Desativa o transistor do DS1 (PB4)
+	BL PortB_Output
+	
+	MOV R0, #1					; Atrasa 1ms
+	BL SysTick_Wait1ms
+	
+	POP {LR}
+	BX LR						; Retoma
+
+WriteDS2						; Recebe o dígito das unidades
+	PUSH {LR}					; Guarda o endereço de retorno
+	
+	LDR  R11, =MAPEAMENTO_7SEG	; Desloca escolhendo o respectivo número das unidades
+	LDRB R10, [R11, R0]
+	
+	AND R0, R10, #2_11110000	; Atualiza DSDP:DSE (PA7:PA4)
+	BL PortA_Output
+	
+	AND R0, R10, #2_00001111	; Atualiza DSD:DSA (PQ3:PQ0)
 	BL PortQ_Output
 
 	MOV R0, #2_00100000			; Ativa o transistor do DS2 (PB5)
@@ -173,33 +200,6 @@ WriteDS1
 	BL SysTick_Wait1ms
 	
 	MOV R0, #2_00000000			; Desativa o transistor do DS2 (PB5)
-	BL PortB_Output
-	
-	MOV R0, #1					; Atrasa 1ms
-	BL SysTick_Wait1ms
-	
-	POP {LR}
-	BX LR						; Retoma
-
-WriteDS2
-	PUSH {LR}					; Guarda o endereço de retorno
-	
-	LDR  R11, =MAPEAMENTO_7SEG	; Desloca escolhendo o respectivo número das unidades
-	LDRB R10, [R11, R0]
-	
-	AND R0, R10, #2_11110000	; Atualiza
-	BL PortA_Output
-	
-	AND R0, R10, #2_00001111	; Atualiza
-	BL PortQ_Output
-
-	MOV R0, #2_00010000			; Ativa o transistor do DS1 (PB4)
-	BL PortB_Output
-	
-	MOV R0, #1					; Atrasa 1ms
-	BL SysTick_Wait1ms
-	
-	MOV R0, #2_00000000			; Desativa o transistor do DS1 (PB4)
 	BL PortB_Output
 	
 	MOV R0, #1					; Atrasa 1ms
