@@ -28,21 +28,8 @@ GPIO_PORTA_AHB_AFSEL_R   	EQU    0x40058420
 GPIO_PORTA_AHB_DEN_R     	EQU    0x4005851C
 GPIO_PORTA_AHB_PUR_R     	EQU    0x40058510	
 GPIO_PORTA_AHB_DATA_R    	EQU    0x400583FC
-GPIO_PORTA_AHB_DATA_BITS_R  EQU    0x40058000
+GPIO_PORTA_AHB_DATA_BITS_R	EQU    0x40058000
 GPIO_PORTA               	EQU    2_000000000000001 ; SYSCTL_PPGPIO_P0
-	
-; PORT B
-GPIO_PORTB_AHB_LOCK_R    	EQU    0x40059520
-GPIO_PORTB_AHB_CR_R      	EQU    0x40059524
-GPIO_PORTB_AHB_AMSEL_R   	EQU    0x40059528
-GPIO_PORTB_AHB_PCTL_R    	EQU    0x4005952C
-GPIO_PORTB_AHB_DIR_R     	EQU    0x40059400
-GPIO_PORTB_AHB_AFSEL_R   	EQU    0x40059420
-GPIO_PORTB_AHB_DEN_R     	EQU    0x4005951C
-GPIO_PORTB_AHB_PUR_R     	EQU    0x40059510	
-GPIO_PORTB_AHB_DATA_R    	EQU    0x400593FC
-GPIO_PORTB_AHB_DATA_BITS_R  EQU    0x40059000
-GPIO_PORTB               	EQU    2_000000000000010 ; SYSCTL_PPGPIO_P1
 
 ; PORT J
 GPIO_PORTJ_AHB_LOCK_R    	EQU    0x40060520
@@ -54,7 +41,7 @@ GPIO_PORTJ_AHB_AFSEL_R   	EQU    0x40060420
 GPIO_PORTJ_AHB_DEN_R     	EQU    0x4006051C
 GPIO_PORTJ_AHB_PUR_R     	EQU    0x40060510	
 GPIO_PORTJ_AHB_DATA_R    	EQU    0x400603FC
-GPIO_PORTJ_AHB_DATA_BITS_R  EQU    0x40060000
+GPIO_PORTJ_AHB_DATA_BITS_R	EQU    0x40060000
 GPIO_PORTJ               	EQU    2_000000100000000 ; SYSCTL_PPGPIO_P8
 
 ; PORT K
@@ -123,13 +110,13 @@ GPIO_PORTQ               	EQU    2_100000000000000 ; SYSCTL_PPGPIO_P14
 ; Interrupções
 
 ; PORT J Interrupção
-GPIO_PORTJ_IS_R     		EQU    0x40060404
-GPIO_PORTJ_IBE_R			EQU    0x40060408
-GPIO_PORTJ_IEV_R			EQU	   0x4006040C
-GPIO_PORTJ_IM_R				EQU	   0x40060410
-GPIO_PORTJ_ICR_R			EQU	   0x4006041C
-NVIC_PRI12_R				EQU	   0xE000E430
-NVIC_EN1_R					EQU	   0xE000E104
+GPIO_PORTJ_IS_R				EQU	   0x40060404
+GPIO_PORTJ_IBE_R			EQU	   0x40060408
+GPIO_PORTJ_IEV_R			EQU    0x4006040C
+GPIO_PORTJ_IM_R				EQU    0x40060410
+GPIO_PORTJ_ICR_R			EQU    0x4006041C
+NVIC_PRI12_R				EQU    0xE000E430
+NVIC_EN1_R					EQU    0xE000E104
 
 ; -------------------------------------------------------------------------------
 ; Área de Código - Tudo abaixo da diretiva a seguir será armazenado na memória de 
@@ -139,7 +126,6 @@ NVIC_EN1_R					EQU	   0xE000E104
 		; Se alguma função do arquivo for chamada em outro arquivo	
 		EXPORT GPIO_Init            ; Permite chamar GPIO_Init de outro arquivo
 		EXPORT PortA_Output			; Permite chamar PortA_Output de outro arquivo
-		EXPORT PortB_Output			; Permite chamar PortB_Output de outro arquivo
 		EXPORT PortJ_Input          ; Permite chamar PortJ_Input de outro arquivo
 		EXPORT PortK_Output			; Permite chamar PortK_Output de outro arquivo
 		EXPORT PortL_Input			; Permite chamar PortL_Input de outro arquivo
@@ -161,7 +147,6 @@ GPIO_Init
 ; enable clock to GPIOF at clock gating register
 			LDR     R0, =SYSCTL_RCGCGPIO_R  		; Carrega o endereço do registrador RCGCGPIO
 			MOV		R1, #GPIO_PORTA                 ; Seta o bit da porta A
-			ORR     R1, #GPIO_PORTB					; Seta o bit da porta B, fazendo com OR
 			ORR     R1, #GPIO_PORTJ					; Seta o bit da porta J, fazendo com OR
 			ORR     R1, #GPIO_PORTK					; Seta o bit da porta K, fazendo com OR
 			ORR     R1, #GPIO_PORTL					; Seta o bit da porta L, fazendo com OR
@@ -173,7 +158,6 @@ GPIO_Init
             LDR     R0, =SYSCTL_PRGPIO_R			; Carrega o endereço do PRGPIO para esperar os GPIO ficarem prontos
 EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do registrador
 			MOV     R2, #GPIO_PORTA                 ; Seta os bits correspondentes às portas para fazer a comparação - Seta o bit da porta A
-			ORR     R2, #GPIO_PORTB                 ; Seta o bit da porta B, fazendo com OR
 			ORR     R2, #GPIO_PORTJ                 ; Seta o bit da porta J, fazendo com OR
 			ORR     R2, #GPIO_PORTK                 ; Seta o bit da porta K, fazendo com OR
 			ORR     R2, #GPIO_PORTL                 ; Seta o bit da porta L, fazendo com OR
@@ -187,9 +171,6 @@ EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do regi
             MOV     R1, #0x00						; Colocar 0 no registrador para desabilitar a função analógica
 			LDR     R0, =GPIO_PORTA_AHB_AMSEL_R     ; Carrega o R0 com o endereço do AMSEL para a porta A
             STR     R1, [R0]						; Guarda no registrador AMSEL da porta A da memória
-			
-			LDR     R0, =GPIO_PORTB_AHB_AMSEL_R		; Carrega o R0 com o endereço do AMSEL para a porta B
-            STR     R1, [R0]					    ; Guarda no registrador AMSEL da porta B da memória
 			
 			LDR     R0, =GPIO_PORTJ_AHB_AMSEL_R		; Carrega o R0 com o endereço do AMSEL para a porta J
             STR     R1, [R0]					    ; Guarda no registrador AMSEL da porta J da memória
@@ -214,9 +195,6 @@ EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do regi
 			LDR     R0, =GPIO_PORTA_AHB_PCTL_R		; Carrega o R0 com o endereço do PCTL para a porta A
             STR     R1, [R0]                        ; Guarda no registrador PCTL da porta A da memória
 			
-			LDR     R0, =GPIO_PORTB_AHB_PCTL_R		; Carrega o R0 com o endereço do PCTL para a porta B
-            STR     R1, [R0]                        ; Guarda no registrador PCTL da porta B da memória
-			
 			LDR     R0, =GPIO_PORTJ_AHB_PCTL_R		; Carrega o R0 com o endereço do PCTL para a porta J
             STR     R1, [R0]                        ; Guarda no registrador PCTL da porta J da memória
 			
@@ -240,13 +218,9 @@ EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do regi
 			MOV     R1, #2_11110000					; PA7:PA4
             STR     R1, [R0]						; Guarda no registrador
 			
-			LDR     R0, =GPIO_PORTB_AHB_DIR_R		; Carrega o R0 com o endereço do DIR para a porta B
-			MOV     R1, #2_110000					; PB5 e PB4
-            STR     R1, [R0]						; Guarda no registrador
-			
 			; O certo era verificar os outros bits da PJ para não transformar entradas em saídas desnecessárias
 			LDR     R0, =GPIO_PORTJ_AHB_DIR_R		; Carrega o R0 com o endereço do DIR para a porta J
-			MOV     R1, #0x00               		; Colocar 0 no registrador DIR para funcionar com saída PJ1 e PJ0
+			MOV     R1, #2_0               			; PJ0
             STR     R1, [R0]						; Guarda no registrador PCTL da porta J da memória
 			
 			LDR     R0, =GPIO_PORTK_DIR_R			; Carrega o R0 com o endereço do DIR para a porta K
@@ -276,9 +250,6 @@ EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do regi
             LDR     R0, =GPIO_PORTA_AHB_AFSEL_R		; Carrega o endereço do AFSEL da porta A
             STR     R1, [R0]						; Escreve na porta
 			
-			LDR     R0, =GPIO_PORTB_AHB_AFSEL_R     ; Carrega o endereço do AFSEL da porta B
-            STR     R1, [R0]                        ; Escreve na porta
-			
 			LDR     R0, =GPIO_PORTJ_AHB_AFSEL_R     ; Carrega o endereço do AFSEL da porta J
             STR     R1, [R0]                        ; Escreve na porta
 			
@@ -304,14 +275,9 @@ EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do regi
             ORR     R1, R1, #2_11110000             ; Faz o OR bit a bit para manter os valores anteriores e setar somente PA7:PA4
             STR     R1, [R0]						; Escreve no registrador da memória funcionalidade digital
 			
-			LDR     R0, =GPIO_PORTB_AHB_DEN_R		; Carrega o endereço do DEN
-			LDR     R1, [R0]						; Lê para carregar o valor anterior da porta inteira
-            ORR     R1, R1, #2_00110000             ; Faz o OR bit a bit para manter os valores anteriores e setar somente PB5 e PB4
-            STR     R1, [R0]						; Escreve no registrador da memória funcionalidade digital
-			
 			LDR     R0, =GPIO_PORTJ_AHB_DEN_R		; Carrega o endereço do DEN
 			LDR     R1, [R0]						; Lê para carregar o valor anterior da porta inteira
-            ORR     R1, R1, #2_00000011             ; Faz o OR bit a bit para manter os valores anteriores e setar somente PJ1 e PJ0
+            ORR     R1, R1, #2_00000001             ; Faz o OR bit a bit para manter os valores anteriores e setar somente PJ0
             STR     R1, [R0]						; Escreve no registrador da memória funcionalidade digital
 			
 			LDR     R0, =GPIO_PORTK_DEN_R			; Carrega o endereço do DEN
@@ -341,7 +307,7 @@ EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do regi
 			
 ; 7. Para habilitar resistor de pull-up interno, setar PUR para 1
 			LDR     R0, =GPIO_PORTJ_AHB_PUR_R		; Carrega o endereço do PUR para a porta J
-			MOV     R1, #2_0011						; Habilitar funcionalidade digital de resistor de pull-up PJ1 e PJ0
+			MOV     R1, #2_0001						; Habilitar funcionalidade digital de resistor de pull-up PJ0
             STR     R1, [R0]						; Escreve no registrador da memória do resistor de pull-up
 			
 			LDR     R0, =GPIO_PORTL_PUR_R			; Carrega o endereço do PUR para a porta L
@@ -350,27 +316,27 @@ EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do regi
 
 ; 8. Interrupções
 			LDR R1, =GPIO_PORTJ_IM_R				
-			MOV R0, #0x00 							; Desabilita a interrupção na porta J0
+			MOV R0, #2_0 							; Desabilita a interrupção na porta J0
 			STR R0, [R1] 
 	
-			MOV R1, #0x00
+			MOV R1, #2_0
 			LDR R0, =GPIO_PORTJ_IS_R				; 0 para interrupção de borda e 1 para nível
 			STR R1, [R0]
 			
-			MOV R1, #0x00
+			MOV R1, #2_0
 			LDR R0, =GPIO_PORTJ_IBE_R				; 0 para borda única
 			STR R1, [R0]
 			
-			MOV R1, #0x00
+			MOV R1, #2_0
 			LDR R0, =GPIO_PORTJ_IEV_R				; 0 para borda de descida
 			STR R1, [R0]
 			
-			LDR R1, =GPIO_PORTJ_ICR_R				; Configura a interrupção na porta J0
-			MOV R0, #0x01 ;
+			LDR R1, =GPIO_PORTJ_ICR_R				; Configura a interrupção na porta PJ0
+			MOV R0, #2_1
 			STR R0, [R1]
 			
 			LDR R1, =GPIO_PORTJ_IM_R				; Habilita a interrupção na porta J0
-			MOV R0, #0x00000001 ;
+			MOV R0, #2_1
 			STR R0, [R1]
 			
 			LDR R1, =NVIC_PRI12_R					; Configura prioridade 5 nos bits 29 a 31
@@ -400,24 +366,12 @@ PortA_Output
 	STR R0, [R1]                            ; Escreve na porta A
 	BX LR									; Retorna
 
-; Função PortB_Output
-; Parâmetro de entrada: R0
-; Parâmetro de saída: Não tem
-PortB_Output
-	LDR	R1, =GPIO_PORTB_AHB_DATA_R		    ;Carrega o valor do offset do data register
-	; Read-Modify-Write para escrita
-	LDR R2, [R1]
-	BIC R2, #2_00110000						; Máscara com bits 1 nas posições que queremos limpar PB5 e PB4
-	ORR R0, R0, R2                          ; Fazer o OR do lido pela porta com o parâmetro de entrada
-	STR R0, [R1]                            ; Escreve na porta B
-	BX LR									; Retorna
-
 ; Função PortJ_Input
 ; Parâmetro de entrada: Não tem
 ; Parâmetro de saída: R0 --> o valor da leitura
 PortJ_Input
 	LDR	R1, =GPIO_PORTJ_AHB_DATA_R		    ; Carrega o valor do offset do data register
-	LDR R0, [R1]                            ; Lê no barramento de dados dos pinos PJ1 e PJ0
+	LDR R0, [R1]                            ; Lê no barramento de dados dos pinos
 	BX LR									; Retorna
 
 ; Função GPIOPortJ_Handler

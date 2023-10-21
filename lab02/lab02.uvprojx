@@ -390,11 +390,6 @@
               <FilePath>.\startup.s</FilePath>
             </File>
             <File>
-              <FileName>lab01.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>.\lab01.s</FilePath>
-            </File>
-            <File>
               <FileName>util.s</FileName>
               <FileType>2</FileType>
               <FilePath>.\util.s</FilePath>
@@ -403,6 +398,11 @@
               <FileName>gpio.s</FileName>
               <FileType>2</FileType>
               <FilePath>.\gpio.s</FilePath>
+            </File>
+            <File>
+              <FileName>lab02.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\lab02.s</FilePath>
             </File>
           </Files>
         </Group>
