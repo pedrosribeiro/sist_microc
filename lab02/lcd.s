@@ -27,6 +27,9 @@
 		; Se alguma função do arquivo for chamada em outro arquivo
 		; EXPORT <func>				; Permite chamar a função a partir de outro arquivo
 		EXPORT LCD_Init
+		EXPORT LCD_Line2
+		EXPORT LCD_PrintString
+		EXPORT LCD_Reset
 									
 		; Se chamar alguma função externa	
         ;IMPORT <func>              ; Permite chamar dentro deste arquivo uma função de outro
@@ -96,6 +99,60 @@ LCD_Data
 	
 	MOV R0, #2_000		; Desativa o modo de dados (EN=0, RW=0, RS=0)
 	BL PortM_Output
+	
+	POP {LR}
+	BX LR
+
+; Função LCD_Line2
+; Prepara a escrita na segunda linha do LCD
+; Parâmetro de entrada: Não tem
+; Parâmetro de saída: Não tem
+LCD_Line2
+	PUSH {LR}
+	
+	MOV R3, #0xC0		; Endereço da primeira posição - Segunda Linha
+	BL LCD_Instruction
+	
+	MOV R0, #10			; Delay de 10ms para executar (bem mais do que os 40us ou 1,64ms necessários)
+	BL SysTick_Wait1ms
+	
+	POP {LR}
+	BX LR
+
+; Funções LCD_PrintString, LCD_PrintChar e LCD_EndOfString
+; Imprimem uma string no LCD através de um loop
+; Parâmetro de entrada: R4 -> A string a ser escrita
+; Parâmetro de saída: Não tem
+LCD_PrintString
+	PUSH {LR}
+LCD_PrintChar
+	LDRB R3, [R4], #1	; Lê um caractere da string e desloca para o próximo
+	
+	CMP R3, #0			; Verifica se chegou no final da string
+	BEQ LCD_EndOfString
+	
+	BL LCD_Data			; Escreve o caractere
+	
+	B LCD_PrintChar		; Continua iterando sobre a string até chegar no fim
+LCD_EndOfString
+	MOV R0, #10			; Delay de 10ms para executar (bem mais do que os 40us ou 1,64ms necessários)
+	BL SysTick_Wait1ms
+	
+	POP {LR}			; A string foi escrita. Retorna
+	BX LR
+
+; Função LCD_Reset
+; Limpa o display e leva o cursor para o home
+; Parâmetro de entrada: Não tem
+; Parâmetro de saída: Não tem
+LCD_Reset
+	PUSH {LR}
+	
+	MOV R3, #0x01		; Resetar: Limpar o display e levar o cursor para o home
+	BL LCD_Instruction
+	
+	MOV R0, #10			; Delay de 10ms para executar (bem mais do que os 40us ou 1,64ms necessários)
+	BL SysTick_Wait1ms
 	
 	POP {LR}
 	BX LR
