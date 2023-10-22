@@ -134,6 +134,7 @@ NVIC_EN1_R					EQU    0xE000E104
 		EXPORT PortQ_Output			; Permite chamar PortQ_Output de outro arquivo
 		EXPORT GPIOPortJ_Handler	; Permite chamar GPIOPortJ_Handler de outro arquivo
 
+		; Se chamar alguma função externa
 		IMPORT EnableInterrupts		; Chama EnableInterrupts do arquivo "startup.s"
 
 ;--------------------------------------------------------------------------------
@@ -379,7 +380,7 @@ PortJ_Input
 ; Parâmetro de saída: R0 --> o valor a ser atualizado
 GPIOPortJ_Handler
 	; O certo seria testar se a interrupção foi causada por PJ1 ou PJ0 através do GPIORIS
-	LDR R1, =GPIO_PORTJ_AHB_ICR_R
+	LDR R1, =GPIO_PORTJ_ICR_R
 	MOV R0, #0x00000001						; PJ0
 	STR R0, [R1] 							; Limpa a interrupção (ACK)
 	BX LR 									; Retorna

@@ -31,19 +31,21 @@
 		; Se chamar alguma função externa	
         ;IMPORT <func>              ; Permite chamar dentro deste arquivo uma 
 									; função <func>
-		IMPORT  PLL_Init
-		IMPORT  SysTick_Init
-		IMPORT  SysTick_Wait1ms			
-		IMPORT  GPIO_Init
+		IMPORT PLL_Init
+		IMPORT SysTick_Init
+		IMPORT SysTick_Wait1ms			
+		IMPORT GPIO_Init
+		IMPORT LCD_Init
 			
 ; -------------------------------------------------------------------------------
 Start  		
-	BL PLL_Init                 ; Chama a subrotina para alterar o clock do microcontrolador para 80MHz
-	BL SysTick_Init				; Chama a subrotina para inicializar o SysTick
-	BL GPIO_Init                ; Chama a subrotina que inicializa os GPIO
+	BL PLL_Init				; Chama a subrotina para alterar o clock do microcontrolador para 80MHz
+	BL SysTick_Init			; Chama a subrotina para inicializar o SysTick
+	BL GPIO_Init			; Chama a subrotina que inicializa os GPIO
+	BL LCD_Init				; Chama a subrotina que inicializa o LCD
 
 ; -------------------------------------------------------------------------------------------------------------------------
 ; Fim do Arquivo
 ; -------------------------------------------------------------------------------------------------------------------------	
-    ALIGN                        ;Garante que o fim da seção está alinhada 
-    END                          ;Fim do arquivo
+    ALIGN					;Garante que o fim da seção está alinhada 
+    END						;Fim do arquivo

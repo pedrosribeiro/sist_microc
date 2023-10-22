@@ -404,6 +404,11 @@
               <FileType>2</FileType>
               <FilePath>.\lab02.s</FilePath>
             </File>
+            <File>
+              <FileName>lcd.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>.\lcd.s</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
