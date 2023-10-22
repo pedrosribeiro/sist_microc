@@ -77,6 +77,28 @@ LCD_Instruction
 	
 	POP {LR}
 	BX LR
+
+; Função LCD_Data
+; Recebe um dado e o escreve
+; Parâmetro de entrada: R3
+; Parâmetro de saída: Não tem
+LCD_Data
+	PUSH {LR}
+	
+	MOV R0, #2_101		; Ativa o modo de dados (EN=1, RW=0, RS=1)
+	BL PortM_Output
+	
+	MOV R0, R3			; Escreve no barramento de dados
+	BL PortK_Output
+	
+	MOV R0, #10			; Delay de 10ms para executar (bem mais do que os 40us ou 1,64ms necessários)
+	BL SysTick_Wait1ms
+	
+	MOV R0, #2_000		; Desativa o modo de dados (EN=0, RW=0, RS=0)
+	BL PortM_Output
+	
+	POP {LR}
+	BX LR
 ; -------------------------------------------------------------------------------------------------------------------------
 ; Fim do Arquivo
 ; -------------------------------------------------------------------------------------------------------------------------	
