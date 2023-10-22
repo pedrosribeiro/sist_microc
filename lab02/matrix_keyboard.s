@@ -95,7 +95,7 @@ MapMatrixKeyboard
 	BEQ DIGIT_9
 	
 	CMP R0, #2_0111			; Símbolo # foi pressionado
-	BEQ.W DIGIT_HASH		; Branch offset out of range (BEQ.W corrige o problema)
+	BEQ.W DIGIT_HASH		; Error: Branch offset out of range (BEQ.W corrige o problema)
 	; -----------------------------------------------------------
 	
 	POP {LR}

@@ -29,7 +29,7 @@ MAX_PASSWORD_ATTEMPT EQU 3
 ;<var>	SPACE <tam>                        ; Declara uma variável de nome <var>
                                            ; de <tam> bytes a partir da primeira 
                                            ; posição da RAM		
-PASSWORD SPACE 4			; Senha de 4 caracteres (4 bytes)
+PASSWORDS SPACE 8			; 4 bytes para a senha do usuário e 4 bytes para a senha mestra
 ; -------------------------------------------------------------------------------
 ; Área de Código - Tudo abaixo da diretiva a seguir será armazenado na memória de 
 ;                  código
@@ -67,13 +67,40 @@ Start
 	MOV R5, #GET_PASSWORD	; R5 usado para o estado do cofre
 	MOV R6, #16				; R6 usado para guardar o dígito lido do teclado
 	MOV R7, #0				; R7 usado para contar quantos dígitos o usuário digitou
-	LDR R8, =PASSWORD		; R8 usado para apontar a posição da senha salva na memória
+	LDR R8, =PASSWORDS		; R8 usado para apontar a posição da senha salva na memória
 	MOV R9, #-1				; R9 usado para ler os caracteres da senha salva na memória
+	STRB R9, [R8]
 	MOV R10, #0				; R10 usado para contar quantos dígitos o usuário acertou
 	MOV R11, #0				; R11 usado para contar quantos erros de senha aconteceram
+	; R12 usado para configurar a senha mestra na memória e como registrador auxiliar
+	BL SetMasterPassword
 	
 	B MainLoop
 
+; Função SetMasterPassword
+; Guarda a senha mestra na memória
+; Parâmetro de entrada: R8 -> Endereço aonde a senha deve ser armazenada
+; Parâmetro de saída: Não tem
+SetMasterPassword
+	PUSH {LR}
+	
+	MOV R12, #1				; Primeiro dígito da senha mestra
+	STRB R12, [R8, #5]		; Senha mestra é armazenada 4 bytes a frente da senha do usuário
+	MOV R12, #2				; Segundo dígito da senha mestra
+	STRB R12, [R8, #6]
+	MOV R12, #3				; Terceiro dígito da senha mestra
+	STRB R12, [R8, #7]
+	MOV R12, #4				; Quarto dígito da senha mestra
+	STRB R12, [R8, #8]
+	MOV R12, #0
+	
+	POP {LR}
+	BX LR
+
+; Função MainLoop
+; Loop principal do programa
+; Parâmetro de entrada: R5 -> Estado atual do cofre
+; Parâmetro de saída: Não tem
 MainLoop
 
 	CMP R5, #CLOSED			; Verifica se o cofre já está fechado
@@ -150,8 +177,28 @@ WrongPassword
 LockedFunction
 	; --
 
+; Função OpenFunction
+; Zera registradores e coloca o cofre em estado de pedir senha (cofre aberto)
+; Parâmetro de entrada: Não tem
+; Parâmetro de saída: Não tem
 OpenFunction
-	; --
+	MOV R5, #GET_PASSWORD		; Coloca o cofre em estado de pedir senha
+	MOV R6, #16					; Invalida R6 com valor fora do intervalo
+	MOV R7, #0					; Zera o contador de dígitos inseridos
+	MOV R10, #0					; Zera o contador de dígitos acertados
+	MOV R11, #0					; Zera o contador de erros de senha
+	MOV R12, #0					; Zera o registrador auxiliar
+	
+	BL LCD_Reset				; Limpa o display e coloca o cursor em home
+	
+	LDR R4, =OPENING_STR		; Imprime a mensagem abrindo cofre
+	LTORG						; Error: Literal pool too distant, use LTORG to assemble it within 4KB
+	BL LCD_PrintString
+	
+	MOV R0, #5000				; Mostra a mensagem durante 5s
+	BL SysTick_Wait1ms
+	
+	B MainLoop					; Retoma o loop principal
 
 GetPassword
 	; --
