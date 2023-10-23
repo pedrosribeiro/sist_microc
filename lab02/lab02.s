@@ -338,7 +338,7 @@ CheckHashConfirmation
 ; Parâmetro de entrada: Não tem
 ; Parâmetro de saída: Não tem
 ClosingFunction
-	MOV R0, #500				; Aguarda 0,5s antes de iniciar o processo de fechamento do cofre
+	MOV R0, #1000				; Aguarda 1s antes de iniciar o processo de fechamento do cofre
 	BL SysTick_Wait1ms
 	
 	BL LCD_Reset				; Limpa o display e coloca o cursor em home
@@ -358,7 +358,7 @@ ClosingFunction
 	LDR R4, =ENTER_PASSWORD_STR	; Pede para o usuário inserir a senha na segunda linha do LCD
 	BL LCD_PrintString
 	
-	MOV R0, #500				; Aguarda 0,5s antes de mudar o estado do cofre para trancado
+	MOV R0, #1000				; Aguarda 1s antes de mudar o estado do cofre para trancado
 	BL SysTick_Wait1ms
 	
 	MOV R5, #CLOSED				; Coloca o cofre em estado de fechado

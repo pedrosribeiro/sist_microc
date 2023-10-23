@@ -66,7 +66,7 @@ LCD_Init
 LCD_Instruction
 	PUSH {LR}
 	
-	MOV R0, #2_100		; Ativa o modo de instrução (EN=1, RW=0, RS=0)
+	MOV R0, #2_00000100	; Ativa o modo de instrução (EN=1, RW=0, RS=0)
 	BL PortM_Output
 	
 	MOV R0, R3			; Escreve no barramento de dados
@@ -75,7 +75,7 @@ LCD_Instruction
 	MOV R0, #10			; Delay de 10ms para executar (bem mais do que os 40us ou 1,64ms necessários)
 	BL SysTick_Wait1ms
 	
-	MOV R0, #2_000		; Desativa o modo de instrução (EN=0, RW=0, RS=0)
+	MOV R0, #2_00000000	; Desativa o modo de instrução (EN=0, RW=0, RS=0)
 	BL PortM_Output
 	
 	POP {LR}
@@ -88,7 +88,7 @@ LCD_Instruction
 LCD_Data
 	PUSH {LR}
 	
-	MOV R0, #2_101		; Ativa o modo de dados (EN=1, RW=0, RS=1)
+	MOV R0, #2_00000101	; Ativa o modo de dados (EN=1, RW=0, RS=1)
 	BL PortM_Output
 	
 	MOV R0, R3			; Escreve no barramento de dados
@@ -97,7 +97,7 @@ LCD_Data
 	MOV R0, #10			; Delay de 10ms para executar (bem mais do que os 40us ou 1,64ms necessários)
 	BL SysTick_Wait1ms
 	
-	MOV R0, #2_000		; Desativa o modo de dados (EN=0, RW=0, RS=0)
+	MOV R0, #2_00000000	; Desativa o modo de dados (EN=0, RW=0, RS=0)
 	BL PortM_Output
 	
 	POP {LR}

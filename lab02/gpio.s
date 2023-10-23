@@ -228,7 +228,7 @@ EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do regi
             STR     R1, [R0]						; Guarda no registrador
 			
 			LDR     R0, =GPIO_PORTL_DIR_R			; Carrega o R0 com o endereço do DIR para a porta L
-			MOV     R1, #2_0000						; PL3:PL0
+			MOV     R1, #2_00000000					; PL3:PL0
             STR     R1, [R0]						; Guarda no registrador
 			
 			LDR     R0, =GPIO_PORTM_DIR_R			; Carrega o R0 com o endereço do DIR para a porta M
@@ -236,11 +236,11 @@ EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do regi
             STR     R1, [R0]						; Guarda no registrador
 			
 			LDR     R0, =GPIO_PORTP_DIR_R			; Carrega o R0 com o endereço do DIR para a porta P
-			MOV     R1, #2_100000					; PP5
+			MOV     R1, #2_00100000					; PP5
             STR     R1, [R0]						; Guarda no registrador
 			
 			LDR     R0, =GPIO_PORTQ_DIR_R			; Carrega o R0 com o endereço do DIR para a porta Q
-			MOV     R1, #2_1111						; PQ3:PQ0
+			MOV     R1, #2_00001111					; PQ3:PQ0
             STR     R1, [R0]						; Guarda no registrador
 			
 ; 5. Limpar os bits AFSEL para 0 para selecionar GPIO 
@@ -282,12 +282,12 @@ EsperaGPIO  LDR     R1, [R0]						; Lê da memória o conteúdo do endereço do regi
 			
 			LDR     R0, =GPIO_PORTK_DEN_R			; Carrega o endereço do DEN
 			LDR     R1, [R0]						; Lê para carregar o valor anterior da porta inteira
-            ORR     R1, R1, #2_1111111              ; Faz o OR bit a bit para manter os valores anteriores e setar somente PK7:PK0
+            ORR     R1, R1, #2_11111111           	; Faz o OR bit a bit para manter os valores anteriores e setar somente PK7:PK0
             STR     R1, [R0]						; Escreve no registrador da memória funcionalidade digital
 			
 			LDR     R0, =GPIO_PORTL_DEN_R			; Carrega o endereço do DEN
 			LDR     R1, [R0]						; Lê para carregar o valor anterior da porta inteira
-            ORR     R1, R1, #2_1111             	; Faz o OR bit a bit para manter os valores anteriores e setar somente PL3:PL0
+            ORR     R1, R1, #2_00001111             ; Faz o OR bit a bit para manter os valores anteriores e setar somente PL3:PL0
             STR     R1, [R0]						; Escreve no registrador da memória funcionalidade digital
 			
 			LDR     R0, =GPIO_PORTM_DEN_R			; Carrega o endereço do DEN
@@ -417,7 +417,7 @@ PortM_Output
 	LDR R2, [R1]
 	BIC R2, #2_11110111						; Máscara com bits 1 nas posições que queremos limpar PM7:PM4 e PM3:PM0
 	ORR R0, R0, R2                          ; Fazer o OR do lido pela porta com o parâmetro de entrada
-	STR R0, [R1]                            ; Escreve na porta K
+	STR R0, [R1]                            ; Escreve na porta M
 	BX LR									; Retorna
 
 ; Função PortP_Output
