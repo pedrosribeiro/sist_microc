@@ -7,9 +7,8 @@
 ; -------------------------------------------------------------------------------
 ; Declarações EQU - Defines
 ; ========================
-; Definições de Valores
-BIT0	EQU 2_0001
-BIT1	EQU 2_0010
+LOCKED			EQU 6
+LOCKED_MASTER	EQU 7
 ; ========================
 ; Definições dos Registradores Gerais
 ; All register values were taken from tm4c1294ncpdt.h - TM4C1294NCPDT Register Definitions
@@ -383,6 +382,10 @@ GPIOPortJ_Handler
 	LDR R1, =GPIO_PORTJ_ICR_R
 	MOV R0, #0x00000001						; PJ0
 	STR R0, [R1] 							; Limpa a interrupção (ACK)
+	
+	CMP R5, #LOCKED_MASTER					; Verifica se a interrupção aconteceu com o cofre travado com senha mestre
+	MOVEQ R5, #LOCKED						; Se sim, baixa o estado para travado apenas
+	
 	BX LR 									; Retorna
 
 ; Função PortK_Output

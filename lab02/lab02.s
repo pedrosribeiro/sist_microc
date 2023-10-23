@@ -46,7 +46,11 @@ PASSWORDS SPACE 8			; 4 bytes para a senha do usuário e 4 bytes para a senha mes
 		IMPORT PLL_Init
 		IMPORT SysTick_Init
 		IMPORT SysTick_Wait1ms			
+		
 		IMPORT GPIO_Init
+		IMPORT PortA_Output
+		IMPORT PortP_Output
+		IMPORT PortQ_Output
 			
 		IMPORT LCD_Init
 		IMPORT LCD_Line2
@@ -108,13 +112,13 @@ MainLoop
 	BEQ ClosedFunction
 	
 	CMP R5, #GET_PASSWORD	; Estado inicial do cofre. Pede a senha para fechá-lo
-	BEQ GetPassword
+	BEQ.W GetPassword		; Branch offset out of range (BEQ.W corrige o problema)
 	
 	CMP R5, #SET_PASSWORD	; Configura a senha que o usuário digitou
-	BEQ SetPassword
+	BEQ.W SetPassword		; Branch offset out of range (BEQ.W corrige o problema)
 	
 	CMP R5, #CLOSING		; Coloca o cofre em processo de fechamento
-	BEQ ClosingFunction
+	BEQ.W ClosingFunction	; Branch offset out of range (BEQ.W corrige o problema)
 
 	B MainLoop
 
@@ -175,8 +179,83 @@ WrongPassword
 	
 	B ClosedFunction				; Ainda restam tentativas -> Retoma a rotina de verificação de senha
 
+; Funções LockedFunction, MasterPasswordError, WaitPJ0_Interrupt e CheckMasterPassword
+; Mostra mensagem de cofre travado com senha mestra e aguarda usuário pressionar PJ0 e inserir senha mestra para destravar
+; Parâmetro de entrada: Não tem
+; Parâmetro de saída: Não tem
 LockedFunction
-	; --
+	MOV R5, #LOCKED_MASTER		; Cofre foi travado e precisa da senha mestra para ser destravado
+MasterPasswordError
+	MOV R6, #16					; Invalida o dígito lido do teclado para evitar erros
+	MOV R7, #4					; R7 = 4 para ignorar os primeiros 4 bytes da memória em PASSWORDS (acessar senha mestra)
+	MOV R10, #0					; Zera o contador de dígitos acertados
+	
+	BL LCD_Reset				; Limpa o display e coloca o cursor em home
+	
+	LDR R4, =LOCKED_MASTER_STR	; Mostra a mensagem de erro senha mestra
+	BL LCD_PrintString
+WaitPJ0_Interrupt
+	CMP R5, #LOCKED				; Verifica se PJ0 foi pressionado para sair do modo travado senha mestra para travado
+	BNE WaitPJ0_Interrupt
+	BL LCD_Line2				; Coloca o cursor no começo da segunda linha
+CheckMasterPassword
+	BL MapMatrixKeyboard		; Lê o dígito pressionado no teclado e guarda em R6
+	
+	LDRB R9, [R8, R7]			; Lê um dígito da senha mestra
+	CMP R6, R9					; Compara com o dígito inserido
+	ADDEQ R10, R10, #1			; Se estiver certo, incrementa o contador de acertos
+	
+	MOV R6, #16					; Depois de contabilizado, invalida R6 e R9 para evitar erros
+	MOV R9, #-1
+	
+	CMP R10, #4					; Verifica se os 4 dígitos corretos foram inseridos
+	BEQ UnlockFunction			; Destrava o cofre
+	
+	CMP R7, #8					; Verifica se já leu 4 dígitos, mas não foram os certos
+	BEQ MasterPasswordError		; Retoma o erro pedindo interrupção do PJ0 e senha mestre
+	
+	B CheckMasterPassword		; Se nada disso aconteceu, continua lendo os dígitos
+
+; Funções UnlockFunction e BlinkLEDs
+; Pisca os LEDs da placa e abre o cofre
+; Parâmetro de entrada: Não tem
+; Parâmetro de saída: Não tem
+UnlockFunction
+	MOV R12, #0					; Zera registrador auxiliar
+	
+	MOV R0, #2_100000			; Ativa o transistor dos LEDs (PP5)
+	BL PortP_Output
+	
+	MOV R0, #1					; Atrasa 1ms
+	BL SysTick_Wait1ms
+BlinkLEDs
+	MOV R0, #2_11110000			; Ativa os LEDs PA7:PA4
+	BL PortA_Output
+	MOV R0, #2_00001111			; Ativa os LEDs PQ3:PQ0
+	BL PortQ_Output
+	
+	MOV R0, #100				; LEDs ativados durante 100ms
+	BL SysTick_Wait1ms
+	
+	MOV R0, #2_00000000			; Desativa os LEDs PA7:PA4 e PQ3:PQ0
+	BL PortA_Output
+	BL PortQ_Output
+	
+	MOV R0, #100				; LEDs desativados durante 100ms
+	BL SysTick_Wait1ms
+	
+	ADD R12, R12, #1			; R12 usado aqui como contador de iterações
+	
+	CMP R12, #20				; Verifica se já piscaram 20 vezes
+	BNE BlinkLEDs				; Se ainda não, continua piscando
+	
+	MOV R0, #2_000000			; Se sim, desativa o transistor dos LEDs (PP5)
+	BL PortP_Output
+	
+	MOV R0, #1					; Atrasa 1ms
+	BL SysTick_Wait1ms
+	
+	B OpenFunction				; Abre o cofre
 
 ; Função OpenFunction
 ; Zera registradores e coloca o cofre em estado de pedir senha (cofre aberto)
@@ -292,6 +371,8 @@ OPEN_STR	DCB "Cofre aberto    ", 0
 CLOSING_STR	DCB "Fechando        ", 0
 CLOSED_STR	DCB "Cofre fechado   ", 0
 
+LOCKED_MASTER_STR DCB "ERR Senha mestra", 0
+
 HASH_CONFIRM_STR DCB "Confirme com #  ", 0
 GET_PASSWORD_STR DCB "Digite nova senh", 0
 
@@ -299,7 +380,7 @@ ENTER_PASSWORD_STR DCB "Digite a senha ", 0
 
 EMPTY_STR	DCB "                ", 0
 
-WRONG_PASSWORD_STR DCB "ERR Senha errada ", 0
+WRONG_PASSWORD_STR DCB "ERR Senha errada", 0
 ; -------------------------------------------------------------------------------------------------------------------------
 ; Fim do Arquivo
 ; -------------------------------------------------------------------------------------------------------------------------	
