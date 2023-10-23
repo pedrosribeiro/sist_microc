@@ -198,6 +198,7 @@ MasterPasswordError
 	LDR R4, =LOCKED_MASTER_STR	; Mostra a mensagem de erro senha mestra
 	BL LCD_PrintString
 WaitPJ0_Interrupt
+	BL StartBlinkingLEDs		; Chama a rotina que pisca todos os LEDs da placa auxiliar
 	CMP R5, #LOCKED				; Verifica se PJ0 foi pressionado para sair do modo travado senha mestra para travado
 	BNE WaitPJ0_Interrupt
 	BL LCD_Line2				; Coloca o cursor no começo da segunda linha
@@ -219,19 +220,19 @@ CheckMasterPassword
 	
 	B CheckMasterPassword		; Se nada disso aconteceu, continua lendo os dígitos
 
-; Funções UnlockFunction e BlinkLEDs
-; Pisca os LEDs da placa e abre o cofre
+; Função StartBlinkingLEDs
+; Pisca todos os LEDs da placa auxiliar
 ; Parâmetro de entrada: Não tem
 ; Parâmetro de saída: Não tem
-UnlockFunction
-	MOV R12, #0					; Zera registrador auxiliar
+StartBlinkingLEDs
+	PUSH {LR}
 	
 	MOV R0, #2_100000			; Ativa o transistor dos LEDs (PP5)
 	BL PortP_Output
 	
 	MOV R0, #1					; Atrasa 1ms
 	BL SysTick_Wait1ms
-BlinkLEDs
+	
 	MOV R0, #2_11110000			; Ativa os LEDs PA7:PA4
 	BL PortA_Output
 	MOV R0, #2_00001111			; Ativa os LEDs PQ3:PQ0
@@ -247,17 +248,32 @@ BlinkLEDs
 	MOV R0, #100				; LEDs desativados durante 100ms
 	BL SysTick_Wait1ms
 	
-	ADD R12, R12, #1			; R12 usado aqui como contador de iterações
+	POP {LR}
+	BX LR
+
+; Função StopBlinkingLEDs
+; Desativa o transistor dos LEDs (para de piscar todos os LEDs da placa auxiliar)
+; Parâmetro de entrada: Não tem
+; Parâmetro de saída: Não tem
+StopBlinkingLEDs
+	PUSH {LR}
 	
-	CMP R12, #20				; Verifica se já piscaram 20 vezes
-	BNE BlinkLEDs				; Se ainda não, continua piscando
-	
-	MOV R0, #2_000000			; Se sim, desativa o transistor dos LEDs (PP5)
+	MOV R0, #2_000000			; Desativa o transistor dos LEDs (PP5)
 	BL PortP_Output
 	
 	MOV R0, #1					; Atrasa 1ms
 	BL SysTick_Wait1ms
 	
+	POP {LR}
+	BX LR
+
+; Função UnlockFunction
+; Para de piscar os LEDs da placa e abre o cofre
+; Parâmetro de entrada: Não tem
+; Parâmetro de saída: Não tem
+UnlockFunction
+	BL StopBlinkingLEDs			; Para de piscar todos os LEDs da placa auxiliar
+
 	B OpenFunction				; Abre o cofre
 
 ; Função OpenFunction
