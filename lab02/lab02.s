@@ -19,8 +19,11 @@ CLOSED			EQU 5
 LOCKED			EQU 6
 LOCKED_MASTER	EQU 7
 ; Definições gerais
-MAX_PASSWORD_ATTEMPT	EQU 3
-WAIT_HASH_CONFIRM		EQU 99	; Valor aleatório só para sinalizar o estado de aguardando # ser pressionado
+MAX_PASSWORD_ATTEMPTS	EQU 3
+; O INVALID_DIGIT deve conter pelo menos 8 bits, caso contrário, pode resultar no aumento do contador de acertos
+INVALID_DIGIT			EQU 256 ; Representa um dígito inválido do teclado matricial
+INVALID_PW_CHAR			EQU -1	; Representa um caractere impossível de estar na senha
+WAIT_HASH_CONFIRM		EQU 100	; Valor aleatório só para sinalizar o estado de aguardando # ser pressionado
 ; -------------------------------------------------------------------------------
 ; Área de Dados - Declarações de variáveis
 		AREA  DATA, ALIGN=2
@@ -70,10 +73,10 @@ Start
 	; R3 usado para instruções e dados do LCD
 	; R4 usado para os textos do LCD
 	MOV R5, #GET_PASSWORD	; R5 usado para o estado do cofre
-	MOV R6, #16				; R6 usado para guardar o dígito lido do teclado
+	MOV R6, #INVALID_DIGIT	; R6 usado para guardar o dígito lido do teclado
 	MOV R7, #0				; R7 usado para contar quantos dígitos o usuário digitou
 	LDR R8, =PASSWORDS		; R8 usado para apontar a posição da senha salva na memória
-	MOV R9, #-1				; R9 usado para ler os caracteres da senha salva na memória
+	MOV R9, #INVALID_PW_CHAR; R9 usado para ler os caracteres da senha salva na memória
 	STRB R9, [R8]
 	MOV R10, #0				; R10 usado para contar quantos dígitos o usuário acertou
 	MOV R11, #0				; R11 usado para contar quantos erros de senha aconteceram
@@ -136,7 +139,7 @@ ClosedFunction
 
 	MOV R7, #0				; O usuário ainda não inseriu dígitos. Zera o contador
 	MOV R10, #0				; O usuário ainda não acertou nenhum dígito. Zera o contador
-	MOV R6, #16				; Nenhum dígito foi lido. Coloca R6 em estado inválido (reset)
+	MOV R6, #INVALID_DIGIT	; Nenhum dígito foi lido. Coloca R6 em estado inválido (reset)
 CheckPassword
 	BL MapMatrixKeyboard	; Lê o dígito pressionado no teclado e guarda em R6
 	
@@ -145,8 +148,8 @@ CheckPassword
 	CMP R6, R9				; Compara o dígito inserido com o dígito da senha salva na memória
 	ADDEQ R10, R10, #1		; Incrementa o contador de acertos se o usuário acertou o caractere atual
 	
-	MOV R6, #16				; Depois de contabilizado, invalida R6 e R9 para evitar erros
-	MOV R9, #-1
+	MOV R6, #INVALID_DIGIT	; Depois de contabilizado, invalida R6 e R9 para evitar erros
+	MOV R9, #INVALID_PW_CHAR
 	
 	CMP R10, #4				; Verifica se o usuário já acertou os 4 dígitos da senha
 	BEQ OpenFunction		; Se acertou, abre o cofre
@@ -169,10 +172,10 @@ WrongPassword
 	MOV R0, #1000					; Mostra a mensagem de erro durante 1s
 	BL SysTick_Wait1ms
 	
-	CMP R11, #MAX_PASSWORD_ATTEMPT	; Verifica se chegou no número máximo de tentativas de senha
+	CMP R11, #MAX_PASSWORD_ATTEMPTS	; Verifica se chegou no número máximo de tentativas de senha
 	ADDNE R11, R11, #1				; Se não chegou, incrementa o contador
 	
-	CMP R11, #MAX_PASSWORD_ATTEMPT	; Se a tentativa atual é o máximo, trava o cofre
+	CMP R11, #MAX_PASSWORD_ATTEMPTS	; Se a tentativa atual é o máximo, trava o cofre
 	BEQ LockedFunction
 	
 	MOV R7, #0						; Zera o contador de dígitos inseridos
@@ -186,7 +189,7 @@ WrongPassword
 LockedFunction
 	MOV R5, #LOCKED_MASTER		; Cofre foi travado e precisa da senha mestra para ser destravado
 MasterPasswordError
-	MOV R6, #16					; Invalida o dígito lido do teclado para evitar erros
+	MOV R6, #INVALID_DIGIT		; Invalida o dígito lido do teclado para evitar erros
 	MOV R7, #4					; R7 = 4 para ignorar os primeiros 4 bytes da memória em PASSWORDS (acessar senha mestra)
 	MOV R10, #0					; Zera o contador de dígitos acertados
 	
@@ -205,8 +208,8 @@ CheckMasterPassword
 	CMP R6, R9					; Compara com o dígito inserido
 	ADDEQ R10, R10, #1			; Se estiver certo, incrementa o contador de acertos
 	
-	MOV R6, #16					; Depois de contabilizado, invalida R6 e R9 para evitar erros
-	MOV R9, #-1
+	MOV R6, #INVALID_DIGIT		; Depois de contabilizado, invalida R6 e R9 para evitar erros
+	MOV R9, #INVALID_PW_CHAR
 	
 	CMP R10, #4					; Verifica se os 4 dígitos corretos foram inseridos
 	BEQ UnlockFunction			; Destrava o cofre
@@ -263,7 +266,7 @@ BlinkLEDs
 ; Parâmetro de saída: Não tem
 OpenFunction
 	MOV R5, #GET_PASSWORD		; Coloca o cofre em estado de pedir senha
-	MOV R6, #16					; Invalida R6 com valor fora do intervalo
+	MOV R6, #INVALID_DIGIT		; Invalida R6 com valor fora do intervalo
 	MOV R7, #0					; Zera o contador de dígitos inseridos
 	MOV R10, #0					; Zera o contador de dígitos acertados
 	MOV R11, #0					; Zera o contador de erros de senha
@@ -272,7 +275,8 @@ OpenFunction
 	BL LCD_Reset				; Limpa o display e coloca o cursor em home
 	
 	LDR R4, =OPENING_STR		; Imprime a mensagem abrindo cofre
-	LTORG						; Error: Literal pool too distant, use LTORG to assemble it within 4KB
+	; Esse erro parou de aparecer, então comentei a linha
+	;LTORG						; Error: Literal pool too distant, use LTORG to assemble it within 4KB
 	BL LCD_PrintString
 	
 	MOV R0, #5000				; Mostra a mensagem durante 5s
