@@ -19,7 +19,8 @@ CLOSED			EQU 5
 LOCKED			EQU 6
 LOCKED_MASTER	EQU 7
 ; Definições gerais
-MAX_PASSWORD_ATTEMPT EQU 3
+MAX_PASSWORD_ATTEMPT	EQU 3
+WAIT_HASH_CONFIRM		EQU 99	; Valor aleatório só para sinalizar o estado de aguardando # ser pressionado
 ; -------------------------------------------------------------------------------
 ; Área de Dados - Declarações de variáveis
 		AREA  DATA, ALIGN=2
@@ -133,7 +134,7 @@ ClosedFunction
 	MOV R10, #0				; O usuário ainda não acertou nenhum dígito. Zera o contador
 	MOV R6, #16				; Nenhum dígito foi lido. Coloca R6 em estado inválido (reset)
 CheckPassword
-	BL MapMatrixKeyboard
+	BL MapMatrixKeyboard	; Lê o dígito pressionado no teclado e guarda em R6
 	
 	LDRB R9, [R8, R7]		; Desloca o ponteiro da senha em R7 bytes, onde R7 é o contador de dígitos inseridos
 	
@@ -227,8 +228,31 @@ GetPassword
 	
 	B MainLoop					; Retoma o loop principal no estado de cadastrar a nova senha
 
+; Função SetPassword
+; Mostra a mensagem de confirmação de senha usando # e aguarda # ser inserida para avançar para o estado de fechando cofre
+; Parâmetro de entrada: Não tem
+; Parâmetro de saída: Não tem
 SetPassword
-	; --
+	BL MapMatrixKeyboard		; Lê o dígito pressionado no teclado e guarda em R6
+	
+	CMP R12, #WAIT_HASH_CONFIRM	; Flag de 4 dígitos inseridos e aguardando a confirmação com #
+	BEQ CheckHashConfirmation
+	
+	STRB R6, [R8, R7]			; Guarda o dígito inserido na memória sequencialmente
+	
+	CMP R7, #4					; Verifica se 4 dígitos foram inseridos
+	BLT SetPassword				; Se não, retoma o loop para receber o próximo
+	
+	BL LCD_Reset				; Se sim, limpa o display e coloca o cursor em home
+	
+	LDR R4, =HASH_CONFIRM_STR	; Imprime a mensagem de confirmação da senha usando #
+	BL LCD_PrintString
+	
+	MOV R12, #WAIT_HASH_CONFIRM	; Flag de 4 dígitos inseridos e aguardando a confirmação com #
+CheckHashConfirmation
+	CMP R5, #CLOSING			; Verifica se o estado do cofre é fechando (DIGIT_HASH no matrix_keyboard.s altera R5 para CLOSING)
+	BNE SetPassword				; Se ainda não for, volta para configurar a senha
+	B MainLoop					; Retoma o loop principal
 
 ClosingFunction
 	; --
@@ -239,6 +263,7 @@ OPEN_STR	DCB "Cofre aberto    ", 0
 CLOSING_STR	DCB "Fechando        ", 0
 CLOSED_STR	DCB "Cofre fechado   ", 0
 
+HASH_CONFIRM_STR DCB "Confirme com #  ", 0
 GET_PASSWORD_STR DCB "Digite nova senh", 0
 
 EMPTY_STR	DCB "                ", 0
