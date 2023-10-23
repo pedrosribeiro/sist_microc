@@ -56,10 +56,10 @@ MapMatrixKeyboard
 	BEQ DIGIT_4
 	
 	CMP R0, #2_1011			; Número 7 foi pressionado
-	BEQ DIGIT_7
+	BEQ.W DIGIT_7			; Error: Branch offset out of range (BEQ.W corrige o problema)
 	
 	CMP R0, #2_0111			; Símbolo * foi pressionado
-	BEQ.W DIGIT_AST			; Branch offset out of range (BEQ.W corrige o problema)
+	BEQ.W DIGIT_AST			; Error: Branch offset out of range (BEQ.W corrige o problema)
 	; -----------------------------------------------------------
 	
 	; -----------------------------------------------------------
@@ -74,7 +74,7 @@ MapMatrixKeyboard
 	BEQ DIGIT_5
 	
 	CMP R0, #2_1011			; Número 8 foi pressionado
-	BEQ DIGIT_8
+	BEQ.W DIGIT_8			; Error: Branch offset out of range (BEQ.W corrige o problema)
 	
 	CMP R0, #2_0111			; Número 0 foi pressionado
 	BEQ DIGIT_0
@@ -92,10 +92,28 @@ MapMatrixKeyboard
 	BEQ DIGIT_6
 	
 	CMP R0, #2_1011			; Número 9 foi pressionado
-	BEQ DIGIT_9
+	BEQ.W DIGIT_9			; Error: Branch offset out of range (BEQ.W corrige o problema)
 	
 	CMP R0, #2_0111			; Símbolo # foi pressionado
 	BEQ.W DIGIT_HASH		; Error: Branch offset out of range (BEQ.W corrige o problema)
+	; -----------------------------------------------------------
+	
+	; -----------------------------------------------------------
+	MOV R0, #2_01110000		; Iterando sobre a quarta coluna
+	BL PortM_Output
+	BL PortL_Input
+	
+	CMP R0, #2_1110			; Letra A foi pressionada
+	BEQ.W DIGIT_A			; Error: Branch offset out of range (BEQ.W corrige o problema)
+	
+	CMP R0, #2_1101			; Letra B foi pressionada
+	BEQ.W DIGIT_B			; Error: Branch offset out of range (BEQ.W corrige o problema)
+	
+	CMP R0, #2_1011			; Letra C foi pressionada
+	BEQ.W DIGIT_C			; Error: Branch offset out of range (BEQ.W corrige o problema)
+	
+	CMP R0, #2_0111			; Letra D foi pressionada
+	BEQ.W DIGIT_D			; Error: Branch offset out of range (BEQ.W corrige o problema)
 	; -----------------------------------------------------------
 	
 	POP {LR}
@@ -108,7 +126,7 @@ MapMatrixKeyboard
 DIGIT_0
 	PUSH {LR}
 	
-	MOV R6, #0				; Guarda o dígito inserido
+	MOV R6, #0x0			; Guarda o dígito inserido
 	
 	LDR R4, =DIGIT_0_STR	; Imprime o dígito no LCD
 	BL LCD_PrintString
@@ -123,7 +141,7 @@ DIGIT_0
 DIGIT_1
 	PUSH {LR}
 	
-	MOV R6, #1				; Guarda o dígito inserido
+	MOV R6, #0x1			; Guarda o dígito inserido
 	
 	LDR R4, =DIGIT_1_STR	; Imprime o dígito no LCD
 	BL LCD_PrintString
@@ -138,7 +156,7 @@ DIGIT_1
 DIGIT_2
 	PUSH {LR}
 	
-	MOV R6, #2				; Guarda o dígito inserido
+	MOV R6, #0x2			; Guarda o dígito inserido
 	
 	LDR R4, =DIGIT_2_STR	; Imprime o dígito no LCD
 	BL LCD_PrintString
@@ -153,7 +171,7 @@ DIGIT_2
 DIGIT_3
 	PUSH {LR}
 	
-	MOV R6, #3				; Guarda o dígito inserido
+	MOV R6, #0x3			; Guarda o dígito inserido
 	
 	LDR R4, =DIGIT_3_STR	; Imprime o dígito no LCD
 	BL LCD_PrintString
@@ -168,7 +186,7 @@ DIGIT_3
 DIGIT_4
 	PUSH {LR}
 	
-	MOV R6, #4				; Guarda o dígito inserido
+	MOV R6, #0x4			; Guarda o dígito inserido
 	
 	LDR R4, =DIGIT_4_STR	; Imprime o dígito no LCD
 	BL LCD_PrintString
@@ -183,7 +201,7 @@ DIGIT_4
 DIGIT_5
 	PUSH {LR}
 	
-	MOV R6, #5				; Guarda o dígito inserido
+	MOV R6, #0x5			; Guarda o dígito inserido
 	
 	LDR R4, =DIGIT_5_STR	; Imprime o dígito no LCD
 	BL LCD_PrintString
@@ -198,7 +216,7 @@ DIGIT_5
 DIGIT_6
 	PUSH {LR}
 	
-	MOV R6, #6				; Guarda o dígito inserido
+	MOV R6, #0x6			; Guarda o dígito inserido
 	
 	LDR R4, =DIGIT_6_STR	; Imprime o dígito no LCD
 	BL LCD_PrintString
@@ -213,7 +231,7 @@ DIGIT_6
 DIGIT_7
 	PUSH {LR}
 	
-	MOV R6, #7				; Guarda o dígito inserido
+	MOV R6, #0x7			; Guarda o dígito inserido
 	
 	LDR R4, =DIGIT_7_STR	; Imprime o dígito no LCD
 	BL LCD_PrintString
@@ -228,7 +246,7 @@ DIGIT_7
 DIGIT_8
 	PUSH {LR}
 	
-	MOV R6, #8				; Guarda o dígito inserido
+	MOV R6, #0x8			; Guarda o dígito inserido
 	
 	LDR R4, =DIGIT_8_STR	; Imprime o dígito no LCD
 	BL LCD_PrintString
@@ -243,9 +261,69 @@ DIGIT_8
 DIGIT_9
 	PUSH {LR}
 	
-	MOV R6, #9				; Guarda o dígito inserido
+	MOV R6, #0x9			; Guarda o dígito inserido
 	
 	LDR R4, =DIGIT_9_STR	; Imprime o dígito no LCD
+	BL LCD_PrintString
+	
+	BL Debouncing			; Trata o bouncing da tecla via software
+	
+	ADD R7, R7, #1			; Incrementa o contador de dígitos inseridos
+	
+	POP {LR}				; Retorna após dígito inserido ter sido guardado e impresso
+	BX LR
+
+DIGIT_A
+	PUSH {LR}
+	
+	MOV R6, #0xA			; Guarda o dígito inserido
+	
+	LDR R4, =DIGIT_A_STR	; Imprime o dígito no LCD
+	BL LCD_PrintString
+	
+	BL Debouncing			; Trata o bouncing da tecla via software
+	
+	ADD R7, R7, #1			; Incrementa o contador de dígitos inseridos
+	
+	POP {LR}				; Retorna após dígito inserido ter sido guardado e impresso
+	BX LR
+
+DIGIT_B
+	PUSH {LR}
+	
+	MOV R6, #0xB			; Guarda o dígito inserido
+	
+	LDR R4, =DIGIT_B_STR	; Imprime o dígito no LCD
+	BL LCD_PrintString
+	
+	BL Debouncing			; Trata o bouncing da tecla via software
+	
+	ADD R7, R7, #1			; Incrementa o contador de dígitos inseridos
+	
+	POP {LR}				; Retorna após dígito inserido ter sido guardado e impresso
+	BX LR
+
+DIGIT_C
+	PUSH {LR}
+	
+	MOV R6, #0xC			; Guarda o dígito inserido
+	
+	LDR R4, =DIGIT_C_STR	; Imprime o dígito no LCD
+	BL LCD_PrintString
+	
+	BL Debouncing			; Trata o bouncing da tecla via software
+	
+	ADD R7, R7, #1			; Incrementa o contador de dígitos inseridos
+	
+	POP {LR}				; Retorna após dígito inserido ter sido guardado e impresso
+	BX LR
+
+DIGIT_D
+	PUSH {LR}
+	
+	MOV R6, #0xD			; Guarda o dígito inserido
+	
+	LDR R4, =DIGIT_D_STR	; Imprime o dígito no LCD
 	BL LCD_PrintString
 	
 	BL Debouncing			; Trata o bouncing da tecla via software
@@ -258,7 +336,7 @@ DIGIT_9
 DIGIT_AST
 	PUSH {LR}
 	
-	MOV R6, #14				; Guarda o dígito inserido
+	MOV R6, #0xE			; Guarda o dígito inserido
 	
 	LDR R4, =DIGIT_AST_STR	; Imprime o dígito no LCD
 	BL LCD_PrintString
@@ -305,6 +383,10 @@ DIGIT_6_STR	DCB "6", 0
 DIGIT_7_STR	DCB "7", 0
 DIGIT_8_STR	DCB "8", 0
 DIGIT_9_STR	DCB "9", 0
+DIGIT_A_STR	DCB "A", 0
+DIGIT_B_STR	DCB "B", 0
+DIGIT_C_STR	DCB "C", 0
+DIGIT_D_STR	DCB "D", 0
 
 DIGIT_AST_STR DCB "*", 0
 ; -------------------------------------------------------------------------------------------------------------------------
