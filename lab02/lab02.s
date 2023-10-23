@@ -119,8 +119,8 @@ MainLoop
 
 ; Funções ClosedFunction e CheckPassword
 ; Verifica a senha digitada enquanto o cofre está fechado
-; Parâmetro de entrada:
-; Parâmetro de saída:
+; Parâmetro de entrada: Não tem
+; Parâmetro de saída: Não tem
 ClosedFunction
 	BL LCD_Line2			; Coloca o cursor no começo da segunda linha
 	
@@ -200,8 +200,32 @@ OpenFunction
 	
 	B MainLoop					; Retoma o loop principal
 
+; Função GetPassword
+; Mostra a mensagem de inserir nova senha e coloca o cofre em estado de configurar a nova senha
+; Parâmetro de entrada: Não tem
+; Parâmetro de saída: Não tem
 GetPassword
-	; --
+	BL LCD_Reset				; Limpa o display e coloca o cursor em home
+	
+	LDR R4, =OPEN_STR			; Informa que o cofre está aberto na primeira linha do LCD
+	BL LCD_PrintString
+	
+	BL LCD_Line2
+	LDR R4, =GET_PASSWORD_STR	; Pede nova senha na segunda linha do LCD
+	BL LCD_PrintString
+	
+	MOV R0, #500				; Mostra a mensagem na segunda linha do LCD durante 0,5s
+	BL SysTick_Wait1ms
+	
+	BL LCD_Line2
+	LDR R4, =EMPTY_STR			; Limpa a segunda linha do LCD
+	BL LCD_PrintString
+	
+	BL LCD_Line2				; Coloca o cursor no começo da segunda linha
+	
+	MOV R5, #SET_PASSWORD		; Coloca o cofre em estado de cadastrar a nova senha
+	
+	B MainLoop					; Retoma o loop principal no estado de cadastrar a nova senha
 
 SetPassword
 	; --
@@ -214,6 +238,8 @@ OPENING_STR	DCB "Abrindo         ", 0
 OPEN_STR	DCB "Cofre aberto    ", 0
 CLOSING_STR	DCB "Fechando        ", 0
 CLOSED_STR	DCB "Cofre fechado   ", 0
+
+GET_PASSWORD_STR DCB "Digite nova senh", 0
 
 EMPTY_STR	DCB "                ", 0
 
