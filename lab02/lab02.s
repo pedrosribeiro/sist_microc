@@ -215,7 +215,7 @@ CheckMasterPassword
 	BEQ UnlockFunction			; Destrava o cofre
 	
 	CMP R7, #8					; Verifica se já leu 4 dígitos, mas não foram os certos
-	BEQ MasterPasswordError		; Retoma o erro pedindo interrupção do PJ0 e senha mestre
+	BEQ LockedFunction			; Retoma a rotina de pedir interrupção do PJ0 e senha mestra
 	
 	B CheckMasterPassword		; Se nada disso aconteceu, continua lendo os dígitos
 
