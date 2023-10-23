@@ -188,11 +188,11 @@ WrongPassword
 ; Parâmetro de saída: Não tem
 LockedFunction
 	MOV R5, #LOCKED_MASTER		; Cofre foi travado e precisa da senha mestra para ser destravado
-MasterPasswordError
-	MOV R6, #INVALID_DIGIT		; Invalida o dígito lido do teclado para evitar erros
+	MOV R6, #INVALID_DIGIT		; Invalida para evitar erros
 	MOV R7, #4					; R7 = 4 para ignorar os primeiros 4 bytes da memória em PASSWORDS (acessar senha mestra)
+	MOV R9, #INVALID_PW_CHAR	; Invalida para evitar erros
 	MOV R10, #0					; Zera o contador de dígitos acertados
-	
+MasterPasswordError
 	BL LCD_Reset				; Limpa o display e coloca o cursor em home
 	
 	LDR R4, =LOCKED_MASTER_STR	; Mostra a mensagem de erro senha mestra
@@ -209,8 +209,8 @@ CheckMasterPassword
 	CMP R6, R9					; Compara com o dígito inserido
 	ADDEQ R10, R10, #1			; Se estiver certo, incrementa o contador de acertos
 	
-	MOV R6, #INVALID_DIGIT		; Depois de contabilizado, invalida R6 e R9 para evitar erros
-	MOV R9, #INVALID_PW_CHAR
+	MOV R6, #INVALID_DIGIT		; Invalida para evitar erros
+	MOV R9, #INVALID_PW_CHAR	; Invalida para evitar erros
 	
 	CMP R10, #4					; Verifica se os 4 dígitos corretos foram inseridos
 	BEQ UnlockFunction			; Destrava o cofre
