@@ -2,78 +2,88 @@
 // Desenvolvido para a placa EK-TM4C1294XL
 // Template by Prof. Guilherme Peron
 
-
 #include <stdint.h>
-
 #include "tm4c1294ncpdt.h"
 
-  
-#define GPIO_PORTJ  (0x0100) //bit 8
-#define GPIO_PORTN  (0x1000) //bit 12
+// Definições dos Ports
+#define GPIO_PORTA (0x00000001)	// SYSCTL_PPGPIO_P0
+#define GPIO_PORTF (0x00000020)	// SYSCTL_PPGPIO_P5
+#define GPIO_PORTH (0x00000080)	// SYSCTL_PPGPIO_P7
+#define GPIO_PORTJ (0x00000100)	// SYSCTL_PPGPIO_P8
+#define GPIO_PORTN (0x00001000)	// SYSCTL_PPGPIO_P12
+#define GPIO_PORTP (0x00002000)	// SYSCTL_PPGPIO_P13
+#define GPIO_PORTQ (0x00004000)	// SYSCTL_PPGPIO_P14
 
 // -------------------------------------------------------------------------------
 // Função GPIO_Init
-// Inicializa os ports J e N
+// Inicializa os ports A, F, H, J, N, P e Q
 // Parâmetro de entrada: Não tem
 // Parâmetro de saída: Não tem
 void GPIO_Init(void)
 {
 	//1a. Ativar o clock para a porta setando o bit correspondente no registrador RCGCGPIO
-	SYSCTL_RCGCGPIO_R = (GPIO_PORTJ | GPIO_PORTN);
+	SYSCTL_RCGCGPIO_R = (GPIO_PORTA | GPIO_PORTF | GPIO_PORTH | GPIO_PORTJ | GPIO_PORTN | GPIO_PORTP | GPIO_PORTQ);
 	//1b.   após isso verificar no PRGPIO se a porta está pronta para uso.
-  while((SYSCTL_PRGPIO_R & (GPIO_PORTJ | GPIO_PORTN) ) != (GPIO_PORTJ | GPIO_PORTN) ){};
+  while((SYSCTL_PRGPIO_R &	(GPIO_PORTA | GPIO_PORTF | GPIO_PORTH | GPIO_PORTJ | GPIO_PORTN | GPIO_PORTP | GPIO_PORTQ) ) != 
+														(GPIO_PORTA | GPIO_PORTF | GPIO_PORTH | GPIO_PORTJ | GPIO_PORTN | GPIO_PORTP | GPIO_PORTQ) ){};
 	
 	// 2. Limpar o AMSEL para desabilitar a analógica
+	GPIO_PORTA_AHB_AMSEL_R = 0x00;
+	GPIO_PORTF_AHB_AMSEL_R = 0x00;
+	GPIO_PORTH_AHB_AMSEL_R = 0x00;
 	GPIO_PORTJ_AHB_AMSEL_R = 0x00;
 	GPIO_PORTN_AMSEL_R = 0x00;
+	GPIO_PORTP_AMSEL_R = 0x00;
+	GPIO_PORTQ_AMSEL_R = 0x00;				
 		
 	// 3. Limpar PCTL para selecionar o GPIO
+	GPIO_PORTA_AHB_PCTL_R = 0x00;
+	GPIO_PORTF_AHB_PCTL_R = 0x00;
+	GPIO_PORTH_AHB_PCTL_R = 0x00;
 	GPIO_PORTJ_AHB_PCTL_R = 0x00;
 	GPIO_PORTN_PCTL_R = 0x00;
-
+	GPIO_PORTP_PCTL_R = 0x00;
+	GPIO_PORTQ_PCTL_R = 0x00;
+															
 	// 4. DIR para 0 se for entrada, 1 se for saída
-	GPIO_PORTJ_AHB_DIR_R = 0x00;
-	GPIO_PORTN_DIR_R = 0x03; //BIT0 | BIT1
+	GPIO_PORTA_AHB_DIR_R = 0xF2;				// 11110010	: PA7 ao PA4 e PA1
+	GPIO_PORTF_AHB_DIR_R = 0x11;				// 10001		: PF4 e PF0
+	GPIO_PORTH_AHB_DIR_R = 0x0F;				// 1111			: PH3 ao PH0
+	GPIO_PORTJ_AHB_DIR_R = 0x00;				// 00				: PJ0
+	GPIO_PORTN_DIR_R = 0x03;						// 11				: PN1 ao PN0
+	GPIO_PORTP_DIR_R = 0x20;						// 100000		: PP5
+	GPIO_PORTQ_DIR_R = 0x0F;						// 1111			: PQ3 ao PQ0
 		
 	// 5. Limpar os bits AFSEL para 0 para selecionar GPIO sem função alternativa	
+	GPIO_PORTA_AHB_AFSEL_R = 0x03;			// UART
+	GPIO_PORTF_AHB_AFSEL_R = 0x00;
+	GPIO_PORTH_AHB_AFSEL_R = 0x00;
 	GPIO_PORTJ_AHB_AFSEL_R = 0x00;
-	GPIO_PORTN_AFSEL_R = 0x00; 
+	GPIO_PORTN_AFSEL_R = 0x00;
+	GPIO_PORTP_AFSEL_R = 0x00;
+	GPIO_PORTQ_AFSEL_R = 0x00;
 		
 	// 6. Setar os bits de DEN para habilitar I/O digital	
-	GPIO_PORTJ_AHB_DEN_R = 0x03;   //Bit0 e bit1
-	GPIO_PORTN_DEN_R = 0x03; 		   //Bit0 e bit1
+	GPIO_PORTA_AHB_DEN_R = 0xF3;				// 11110011	: PA7 ao PA4 e PA1 ao PA0
+	GPIO_PORTF_AHB_DEN_R = 0x11;				// 10001		: PF4 e PF0
+	GPIO_PORTH_AHB_DEN_R = 0x0F;				// 1111			: PH3 ao PH0
+	GPIO_PORTJ_AHB_DEN_R = 0x01;				// 1				: PJ0
+	GPIO_PORTN_DEN_R = 0x03;						// 11				: PN1 ao PN0
+	GPIO_PORTP_DEN_R = 0x20;						// 100000		: PP5
+	GPIO_PORTQ_DEN_R = 0x0F;						// 1111			: PQ3 ao PQ0
 	
 	// 7. Habilitar resistor de pull-up interno, setar PUR para 1
-	GPIO_PORTJ_AHB_PUR_R = 0x03;   //Bit0 e bit1	
+	GPIO_PORTJ_AHB_PUR_R = 0x01;				// PJ0
+	
+	// 8. Interrupções
+	GPIO_PORTJ_AHB_IM_R		= 0x00;
+	GPIO_PORTJ_AHB_IS_R		= 0x00;
+	GPIO_PORTJ_AHB_IBE_R	= 0x00;
+	GPIO_PORTJ_AHB_IEV_R	= 0x00;
+	GPIO_PORTJ_AHB_ICR_R	= 0x01;
+	GPIO_PORTJ_AHB_IM_R		= 0x01;
+	NVIC_EN1_R						= 0x800000;
+	NVIC_PRI12_R					= 0xA0000000;
 
 }	
-
-// -------------------------------------------------------------------------------
-// Função PortJ_Input
-// Lê os valores de entrada do port J
-// Parâmetro de entrada: Não tem
-// Parâmetro de saída: o valor da leitura do port
-uint32_t PortJ_Input(void)
-{
-	return GPIO_PORTJ_AHB_DATA_R;
-}
-
-// -------------------------------------------------------------------------------
-// Função PortN_Output
-// Escreve os valores no port N
-// Parâmetro de entrada: Valor a ser escrito
-// Parâmetro de saída: não tem
-void PortN_Output(uint32_t valor)
-{
-    uint32_t temp;
-    //vamos zerar somente os bits menos significativos
-    //para uma escrita amigável nos bits 0 e 1
-    temp = GPIO_PORTN_DATA_R & 0xFC;
-    //agora vamos fazer o OR com o valor recebido na função
-    temp = temp | valor;
-    GPIO_PORTN_DATA_R = temp; 
-}
-
-
-
 
