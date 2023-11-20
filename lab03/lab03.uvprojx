@@ -409,6 +409,26 @@
               <FileType>1</FileType>
               <FilePath>.\gpio.c</FilePath>
             </File>
+            <File>
+              <FileName>stepper_motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\stepper_motor.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\uart.h</FilePath>
+            </File>
+            <File>
+              <FileName>uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>stepper_motor.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\stepper_motor.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
