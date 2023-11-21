@@ -14,6 +14,11 @@
 #define GPIO_PORTP (0x00002000)	// SYSCTL_PPGPIO_P13
 #define GPIO_PORTQ (0x00004000)	// SYSCTL_PPGPIO_P14
 
+// Global Flags (external)
+extern int stepperMotorActive;
+extern int currentAngle;
+extern int stopRotating;
+
 // -------------------------------------------------------------------------------
 // Função GPIO_Init
 // Inicializa os ports A, F, H, J, N, P e Q
@@ -120,21 +125,74 @@ void LEDs_Timer_Init(void)
 	TIMER2_CTL_R = TIMER2_CTL_R | 0x1;
 }
 
+void Timer2A_Handler(void)
+{
+	TIMER2_ICR_R = 0x1; // Limpa a flag de interrupção do timer 2
+	
+	if (stepperMotorActive) // Alterna os LEDs
+	{
+		if (GPIO_PORTN_DATA_R == 0x0)
+		{
+			GPIO_PORTN_DATA_R = 0x1;
+		}
+		else {
+			GPIO_PORTN_DATA_R = 0x0;
+		}
+		
+	} else {
+		GPIO_PORTN_DATA_R = 0x0;
+	}
+}
+
 void Reset_LEDs(void)
 {
 	GPIO_PORTA_AHB_DATA_R = 0xF & GPIO_PORTA_AHB_DATA_R;
 	GPIO_PORTQ_DATA_R = GPIO_PORTQ_DATA_R & 0x0;
 }
 
+void LEDs_Output(char direction)
+{
+	if (currentAngle % 45 == 0)
+	{
+		
+		int currentLED = currentAngle/45;
+		
+		if (direction == 0)
+		{
+			if (currentLED == 1) {GPIO_PORTQ_DATA_R = 0x1;}
+			if (currentLED == 2) {GPIO_PORTQ_DATA_R = 0x3;}
+			if (currentLED == 3) {GPIO_PORTQ_DATA_R = 0x7;}
+			if (currentLED == 4) {GPIO_PORTQ_DATA_R = 0xF;}
+			if (currentLED == 5) {GPIO_PORTA_AHB_DATA_R = 0x10 | GPIO_PORTA_AHB_DATA_R;}
+			if (currentLED == 6) {GPIO_PORTA_AHB_DATA_R = 0x30 | GPIO_PORTA_AHB_DATA_R;}
+			if (currentLED == 7) {GPIO_PORTA_AHB_DATA_R = 0x70 | GPIO_PORTA_AHB_DATA_R;}
+			if (currentLED == 8) {GPIO_PORTA_AHB_DATA_R = 0xF0 | GPIO_PORTA_AHB_DATA_R;}
+		} else if (direction == 1)
+		{
+			if (currentLED == 1) {GPIO_PORTA_AHB_DATA_R = 0x80 | GPIO_PORTA_AHB_DATA_R;}
+			if (currentLED == 2) {GPIO_PORTA_AHB_DATA_R = 0xC0 | GPIO_PORTA_AHB_DATA_R;}
+			if (currentLED == 3) {GPIO_PORTA_AHB_DATA_R = 0xE0 | GPIO_PORTA_AHB_DATA_R;}
+			if (currentLED == 4) {GPIO_PORTA_AHB_DATA_R = 0xF0 | GPIO_PORTA_AHB_DATA_R;}
+			if (currentLED == 5) {GPIO_PORTQ_DATA_R = 0x8;}
+			if (currentLED == 6) {GPIO_PORTQ_DATA_R = 0xC;}
+			if (currentLED == 7) {GPIO_PORTQ_DATA_R = 0xE;}
+			if (currentLED == 8) {GPIO_PORTQ_DATA_R = 0xF;}
+		}
+	}
+	
+	GPIO_PORTP_DATA_R = 0x1 << 5;				// Ativa o transistor PP5
+}
+
 void GPIOPortJ_Handler(void)
 {
-	//
+	stopRotating = 1;
+	GPIO_PORTJ_AHB_ICR_R = 1;
 }
 
 void PortH_Output(uint32_t degrees)
 {
 	uint32_t temp;
-	temp = GPIO_PORTH_AHB_DATA_R & 0x00;	// escrita amigável
+	temp = GPIO_PORTH_AHB_DATA_R & 0x00;	// Escrita amigável
 	
 	temp = temp | degrees;
 	

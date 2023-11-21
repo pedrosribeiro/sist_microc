@@ -9,7 +9,7 @@
 
 void SysTick_Wait1ms(uint32_t delay);
 
-void UART_Init()
+void UART_Init(void)
 {
 	// 1. Habilitar clock no módulo UART e verificar se está pronta para uso.
 	SYSCTL_RCGCUART_R = SYSCTL_RCGCUART_R0;

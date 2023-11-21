@@ -70,7 +70,7 @@ void Control_Stepper_Motor(uint32_t direction, uint32_t stepMode)
 			} else if (direction == 1)
 			{
 				PortH_Output(0x6); 		// 0110
-        SysTick_Wait1ms(10);
+				SysTick_Wait1ms(10);
         PortH_Output(0x7); 		// 0111
         SysTick_Wait1ms(10);
 
