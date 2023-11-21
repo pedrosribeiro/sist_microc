@@ -91,6 +91,35 @@ void GPIO_Init(void)
 	NVIC_PRI12_R					= 0xA0000000;	// 2_5 << 29
 }
 
+void LEDs_Timer_Init(void)
+{
+	// 1. Habilitar o clock do timer 2 e esperar até estar pronto para uso.
+	SYSCTL_RCGCTIMER_R = 0x4; // 0x1 << 2
+	
+	while ((SYSCTL_PRTIMER_R & 0x4) != 0x4)
+	{
+		//
+	}
+	
+	// 2. Desabilita o timer 2 para configuração
+	TIMER2_CTL_R = TIMER2_CTL_R & 0xFFE;
+	
+	// 3. Configuração do timer 2
+	TIMER2_CFG_R = 0x00;				// Quantos bits será a contagem do temporizador (32 bits: 0x00)
+	TIMER2_TAMR_R = 0x02; 			// Modo de operação do timer 2 (0x02: Periódico)
+	TIMER2_TAILR_R = 0xF423FF; 	// Valor da contagem calculado baseado no clock (15.999.999)
+	TIMER2_TAPR_R = 0x0; 				// Valor do prescalaer (0x0: sem prescaler)
+	
+	TIMER2_ICR_R = 0x1;					// Limpa a flag de interrupção do timer 2
+	TIMER2_IMR_R = 0x1; 				// Habilita a interrupção do timer 2
+	
+	NVIC_PRI5_R = 4 << 29; 			// Seta prioridade 4 para a interrupção
+	NVIC_EN0_R = 1 << 23; 			// Habilita a interrupção do timer no NVIC
+	
+	// 4. Habilita o timer 2 após a configuração
+	TIMER2_CTL_R = TIMER2_CTL_R | 0x1;
+}
+
 void GPIOPortJ_Handler(void)
 {
 	//

@@ -22,4 +22,5 @@ int main(void)
 	SysTick_Init();
 	GPIO_Init();
 	UART_Init();
+	LEDs_Timer_Init();
 }
