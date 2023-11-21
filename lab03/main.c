@@ -65,7 +65,7 @@ unsigned char* getAngle(void)
 	UART_SendString(getAngleMsg);
 	
 	unsigned char message = 0;
-	unsigned char* angle;
+	static unsigned char angle[10];
 	
 	int i = 0;
 	
@@ -139,10 +139,7 @@ void PrintTerminal(uint32_t angle, unsigned char speed, unsigned char direction)
 
 void WaitForChar(char character)
 {
-	while (UART_Receive() != character)
-	{
-		//
-	}
+	while (UART_Receive() != character);
 }
 
 void Rotate(void)
@@ -193,8 +190,8 @@ int main(void)
 		Stepper_Motor_Init();
 		Reset_LEDs();
 		Control_Stepper_Motor(0, 0);
-		Rotate();	// incompleta
-		
-		return 0;
+		Rotate();
 	}
+	
+	return 0;
 }

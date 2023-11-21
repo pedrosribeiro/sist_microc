@@ -157,7 +157,7 @@ void LEDs_Output(char direction)
 		
 		int currentLED = currentAngle/45;
 		
-		if (direction == 0)
+		if (direction == '0')
 		{
 			if (currentLED == 1) {GPIO_PORTQ_DATA_R = 0x1;}
 			if (currentLED == 2) {GPIO_PORTQ_DATA_R = 0x3;}
@@ -167,7 +167,7 @@ void LEDs_Output(char direction)
 			if (currentLED == 6) {GPIO_PORTA_AHB_DATA_R = 0x30 | GPIO_PORTA_AHB_DATA_R;}
 			if (currentLED == 7) {GPIO_PORTA_AHB_DATA_R = 0x70 | GPIO_PORTA_AHB_DATA_R;}
 			if (currentLED == 8) {GPIO_PORTA_AHB_DATA_R = 0xF0 | GPIO_PORTA_AHB_DATA_R;}
-		} else if (direction == 1)
+		} else if (direction == '1')
 		{
 			if (currentLED == 1) {GPIO_PORTA_AHB_DATA_R = 0x80 | GPIO_PORTA_AHB_DATA_R;}
 			if (currentLED == 2) {GPIO_PORTA_AHB_DATA_R = 0xC0 | GPIO_PORTA_AHB_DATA_R;}
@@ -185,8 +185,14 @@ void LEDs_Output(char direction)
 
 void GPIOPortJ_Handler(void)
 {
-	stopRotating = 1;
-	GPIO_PORTJ_AHB_ICR_R = 1;
+	if (stopRotating)
+	{
+		stopRotating = 0;
+	} else {
+		stopRotating = 1;
+	}
+	
+	GPIO_PORTJ_AHB_ICR_R = 1;	// Limpa a flag de interrupção
 }
 
 void PortH_Output(uint32_t degrees)

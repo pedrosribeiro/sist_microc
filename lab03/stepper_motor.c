@@ -15,9 +15,9 @@ void Control_Stepper_Motor(uint32_t direction, uint32_t stepMode)
 {
 	for (int i = 0; i < 22; i++)
 	{
-		if (stepMode == 0)
+		if (stepMode == '0')
 		{
-			if (direction == 0)
+			if (direction == '0')
 			{
 				PortH_Output(0xE);		// 1110
 				SysTick_Wait1ms(10);
@@ -30,7 +30,7 @@ void Control_Stepper_Motor(uint32_t direction, uint32_t stepMode)
 				
 				PortH_Output(0x7);		// 0111
 				SysTick_Wait1ms(10);
-			} else if (direction == 1)
+			} else if (direction == '1')
 			{
 				PortH_Output(0x8);		// 1000
 				SysTick_Wait1ms(10);
@@ -44,9 +44,9 @@ void Control_Stepper_Motor(uint32_t direction, uint32_t stepMode)
 				PortH_Output(0x1);		// 0001
 				SysTick_Wait1ms(10);
 			}
-		} else if (stepMode == 1)
+		} else if (stepMode == '1')
 		{
-			if (direction == 0)
+			if (direction == '0')
 			{
 				PortH_Output(0xE);		// 1110
 				SysTick_Wait1ms(10);
@@ -67,7 +67,7 @@ void Control_Stepper_Motor(uint32_t direction, uint32_t stepMode)
 				SysTick_Wait1ms(10);
 				PortH_Output(0x6);		// 0110
 				SysTick_Wait1ms(10);
-			} else if (direction == 1)
+			} else if (direction == '1')
 			{
 				PortH_Output(0x6); 		// 0110
 				SysTick_Wait1ms(10);
