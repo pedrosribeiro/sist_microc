@@ -120,6 +120,12 @@ void LEDs_Timer_Init(void)
 	TIMER2_CTL_R = TIMER2_CTL_R | 0x1;
 }
 
+void Reset_LEDs(void)
+{
+	GPIO_PORTA_AHB_DATA_R = 0xF & GPIO_PORTA_AHB_DATA_R;
+	GPIO_PORTQ_DATA_R = GPIO_PORTQ_DATA_R & 0x0;
+}
+
 void GPIOPortJ_Handler(void)
 {
 	//

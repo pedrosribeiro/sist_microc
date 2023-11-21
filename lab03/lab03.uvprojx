@@ -429,6 +429,11 @@
               <FileType>5</FileType>
               <FilePath>.\stepper_motor.h</FilePath>
             </File>
+            <File>
+              <FileName>gpio.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\gpio.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

@@ -16,6 +16,11 @@ void SysTick_Wait1ms(uint32_t delay);
 void SysTick_Wait1us(uint32_t delay);
 void GPIO_Init(void);
 
+void Rotate(void)
+{
+	//
+}
+
 int main(void)
 {
 	PLL_Init();
@@ -23,4 +28,14 @@ int main(void)
 	GPIO_Init();
 	UART_Init();
 	LEDs_Timer_Init();
+	
+	while (1)
+	{
+		Stepper_Motor_Init();
+		Reset_LEDs();
+		Control_Stepper_Motor(0, 0);
+		Rotate();	// ainda não implementei
+		
+		return 0;
+	}
 }
