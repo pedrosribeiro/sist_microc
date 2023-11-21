@@ -14,20 +14,24 @@
 void PLL_Init(void);
 void SysTick_Init(void);
 
-// Messages
+// Terminal Messages
 unsigned char waitMsg[]					= "Aguarde...\n";
 unsigned char breakLine[]				= "\n\r";
 unsigned char space							= ' ';
-unsigned char endMsg[]					= "Fim. Pressione * para recomeçar\n";
-unsigned char getSpeedMsg[] 		= "Velocidade (0 ou 1): ";
-unsigned char getDirectionMsg[] = "Direção (0 ou 1): ";
-unsigned char getAngleMsg[]			= "Ângulo (0 a 360)";
+unsigned char endMsg[]					= "Fim. Pressione * para recomecar.\n";
+unsigned char getSpeedMsg[] 		= "Velocidade: Passo-completo (0) ou meio-passo (1)? ";
+unsigned char getDirectionMsg[] = "Sentido de rotacao: Horario (0) ou Anti-horario(1)? ";
+unsigned char getAngleMsg[]			= "Quantos graus o motor deve girar? ";
 
 // Global Flags
 int stepperMotorActive = 0;
 int currentAngle = 0;
 int stopRotating = 0;
 
+// Função getSpeed
+// Recebe do terminal a velocidade em que o motor deve girar
+// Parâmetro de entrada: Não tem
+// Parâmetro de saída: A velocidade em que o motor deve girar
 unsigned char getSpeed(void)
 {
 	UART_SendString(getSpeedMsg);
@@ -44,6 +48,10 @@ unsigned char getSpeed(void)
 	return (message);
 }
 
+// Função getAngle
+// Recebe do terminal o sentido que o motor deve girar
+// Parâmetro de entrada: Não tem
+// Parâmetro de saída: O sentido que o motor deve girar
 unsigned char getDirection(void)
 {
 	UART_SendString(getDirectionMsg);
@@ -60,6 +68,10 @@ unsigned char getDirection(void)
 	return (message);
 }
 
+// Função getAngle
+// Recebe do terminal quantos graus o motor deve girar
+// Parâmetro de entrada: Não tem
+// Parâmetro de saída: Quanto graus o motor deve girar
 unsigned char* getAngle(void)
 {
 	UART_SendString(getAngleMsg);
@@ -88,7 +100,10 @@ unsigned char* getAngle(void)
 	return (angle);
 }
 
+// Função ATOI
 // ASCII to Integer Function
+// Parâmetro de entrada: String ASCII
+// Parâmetro de saída: Inteiro equivalente
 uint32_t ATOI(unsigned char* string)
 {
 	uint32_t result = 0;
@@ -113,6 +128,10 @@ uint32_t ATOI(unsigned char* string)
 	return result;
 }
 
+// Função PrintTerminal
+// Imprime as informações no terminal do Putty
+// Parâmetro de entrada: Ângulo, velocidade e sentido de rotação
+// Parâmetro de saída: Não tem
 void PrintTerminal(uint32_t angle, unsigned char speed, unsigned char direction)
 {
 	// uint32_t angle to unsigned char
@@ -137,11 +156,22 @@ void PrintTerminal(uint32_t angle, unsigned char speed, unsigned char direction)
 	UART_SendString(breakLine);
 }
 
+// Função WaitForChar
+// Segura a execução do programa até que o caractere desejado seja inserido
+// Parâmetro de entrada: Caractere desejado
+// Parâmetro de saída: Não tem
 void WaitForChar(char character)
 {
-	while (UART_Receive() != character);
+	while (UART_Receive() != character)
+	{
+		//
+	}
 }
 
+// Função Rotate
+// Rotaciona o motor e exibe as informações acerca do giro
+// Parâmetro de entrada: Velocidade, direção e ângulo
+// Parâmetro de saída: Não tem
 void Rotate(void)
 {
 	unsigned char speed = getSpeed();
@@ -150,8 +180,10 @@ void Rotate(void)
 	
 	uint32_t angleATOI = ATOI(angle);
 	
+	// "Ativa" o motor
 	stepperMotorActive = 1;
 	
+	// Itera sobre o ângulo
 	for (currentAngle = 0; currentAngle < angleATOI && stopRotating == 0; currentAngle += 15) // incrementa o ângulo de 15 em 15 graus
 	{
 		UART_SendString(waitMsg);
@@ -162,28 +194,31 @@ void Rotate(void)
 		PrintTerminal(currentAngle, speed, direction);
 	}
 	
+	// "Desativa" o motor
+	stepperMotorActive = 0;
+	
+	// imprime o último estado do motor e exibe mensagem de fim
 	LEDs_Output(direction);
 	UART_SendString(waitMsg);
 	UART_SendString(breakLine);
 	PrintTerminal(currentAngle, speed, direction);
-
-	stepperMotorActive = 0;
 	UART_SendString(endMsg);
 	UART_SendString(breakLine);
 	
 	WaitForChar('*');
-	
-	Stepper_Motor_Init();
-	Reset_LEDs();
 }
 
+// Função Main
+// Loop principal
+// Parâmetro de entrada: Não tem
+// Parâmetro de saída: Não tem
 int main(void)
 {
 	PLL_Init();
 	SysTick_Init();
 	GPIO_Init();
 	UART_Init();
-	LEDs_Timer_Init();
+	LED_Timer_Init();
 	
 	while (1)
 	{

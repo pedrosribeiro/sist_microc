@@ -9,6 +9,10 @@
 
 void SysTick_Wait1ms(uint32_t delay);
 
+// Função UART_Init
+// Inicializa a UART
+// Parâmetro de entrada: Não tem
+// Parâmetro de saída: Não tem
 void UART_Init(void)
 {
 	// 1. Habilitar clock no módulo UART e verificar se está pronta para uso.
@@ -41,6 +45,10 @@ void UART_Init(void)
 	UART0_CTL_R = (UART_CTL_UARTEN | UART_CTL_TXE | UART_CTL_RXE);
 }
 
+// Função UART_Receive
+// Recebe dados
+// Parâmetro de entrada: Não tem
+// Parâmetro de saída: Dado recebido
 unsigned char UART_Receive(void)
 {
 	unsigned char message = 0;
@@ -54,6 +62,10 @@ unsigned char UART_Receive(void)
 	return message;
 };
 
+// Função UART_Transmit
+// Transmite dados
+// Parâmetro de entrada: Caractere a ser transmitido
+// Parâmetro de saída: Não tem
 void UART_Transmit(unsigned char character)
 {
 	unsigned long queueFull = (UART0_FR_R & UART_FR_TXFF) >> 5;
@@ -66,6 +78,10 @@ void UART_Transmit(unsigned char character)
 	SysTick_Wait1ms(10);
 };
 
+// Função UART_SendString
+// Transmite uma string transmitindo cada caractere em sequência
+// Parâmetro de entrada: String a ser transmitida
+// Parâmetro de saída: Não tem
 void UART_SendString(unsigned char* string)
 {
 	unsigned char character = string[0];

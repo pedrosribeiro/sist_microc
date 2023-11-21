@@ -96,7 +96,11 @@ void GPIO_Init(void)
 	NVIC_PRI12_R					= 0xA0000000;	// 2_5 << 29
 }
 
-void LEDs_Timer_Init(void)
+// Função LED_Timer_Init
+// Habilita o timer que fará o LED da placa EK-TM4C1294-XL a cada 200ms
+// Parâmetro de entrada: Não tem
+// Parâmetro de saída: Não tem
+void LED_Timer_Init(void)
 {
 	// 1. Habilitar o clock do timer 2 e esperar até estar pronto para uso.
 	SYSCTL_RCGCTIMER_R = 0x4; // 0x1 << 2
@@ -125,11 +129,15 @@ void LEDs_Timer_Init(void)
 	TIMER2_CTL_R = TIMER2_CTL_R | 0x1;
 }
 
+// Função Timer2A_Handler
+// Alterna o estado do LED da placa EK-TM4C1294-XL
+// Parâmetro de entrada: Não tem
+// Parâmetro de saída: Não tem
 void Timer2A_Handler(void)
 {
 	TIMER2_ICR_R = 0x1; // Limpa a flag de interrupção do timer 2
 	
-	if (stepperMotorActive) // Alterna os LEDs
+	if (stepperMotorActive) // Alterna o estado do LED
 	{
 		if (GPIO_PORTN_DATA_R == 0x0)
 		{
@@ -144,12 +152,20 @@ void Timer2A_Handler(void)
 	}
 }
 
+// Função Reset_LEDs
+// Reseta os LEDs da PAT
+// Parâmetro de entrada: Não tem
+// Parâmetro de saída: Não tem
 void Reset_LEDs(void)
 {
 	GPIO_PORTA_AHB_DATA_R = 0xF & GPIO_PORTA_AHB_DATA_R;
 	GPIO_PORTQ_DATA_R = GPIO_PORTQ_DATA_R & 0x0;
 }
 
+// Função LEDs_Output
+// Acende os LEDs da PAT de acordo com a rotação do motor
+// Parâmetro de entrada: Sentido de rotação (Horário ou Anti-horário)
+// Parâmetro de saída: Não tem
 void LEDs_Output(char direction)
 {
 	if (currentAngle % 45 == 0)
@@ -183,6 +199,10 @@ void LEDs_Output(char direction)
 	GPIO_PORTP_DATA_R = 0x1 << 5;				// Ativa o transistor PP5
 }
 
+// Função GPIOPortJ_Handler
+// Trata a interrupção no PJ0
+// Parâmetro de entrada: Não tem
+// Parâmetro de saída: Não tem
 void GPIOPortJ_Handler(void)
 {
 	if (stopRotating)
@@ -195,12 +215,16 @@ void GPIOPortJ_Handler(void)
 	GPIO_PORTJ_AHB_ICR_R = 1;	// Limpa a flag de interrupção
 }
 
-void PortH_Output(uint32_t degrees)
+// Função PortH_Output
+// Escreve no Port H
+// Parâmetro de entrada: Quais fases do motor deve acionar
+// Parâmetro de saída: Não tem
+void PortH_Output(uint32_t phases)
 {
 	uint32_t temp;
-	temp = GPIO_PORTH_AHB_DATA_R & 0x00;	// Escrita amigável
+	temp = GPIO_PORTH_AHB_DATA_R & 0x00;
 	
-	temp = temp | degrees;
+	temp = temp | phases;
 	
 	GPIO_PORTH_AHB_DATA_R = temp;
 }
