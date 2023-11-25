@@ -414,6 +414,26 @@
               <FileType>5</FileType>
               <FilePath>.\gpio.h</FilePath>
             </File>
+            <File>
+              <FileName>lcd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lcd.c</FilePath>
+            </File>
+            <File>
+              <FileName>lcd.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\lcd.h</FilePath>
+            </File>
+            <File>
+              <FileName>ad_converter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\ad_converter.c</FilePath>
+            </File>
+            <File>
+              <FileName>ad_converter.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\ad_converter.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

@@ -81,3 +81,39 @@ void GPIO_Init(void)
 	GPIO_PORTJ_AHB_PUR_R = 0x3;		// PJ1 e PJ0
 	GPIO_PORTL_PUR_R = 0xF;				// PL3:PL0
 }
+
+// Função PortL_Input
+// Lê  a porta L
+// Parâmetro de entrada: Não tem
+// Parâmetro de saída: Valor lido na porta L
+uint32_t PortL_Input (void)
+{
+	return GPIO_PORTL_DATA_R;
+}
+
+// Função PortK_Output
+// Escreve na porta K
+// Parâmetro de entrada: Valor a ser escrito na porta K
+// Parâmetro de saída: Não tem
+void PortK_Output (uint32_t data)
+{
+	// Escrita amigável
+	uint32_t temp;
+	temp = GPIO_PORTK_DATA_R & 0x00;
+	temp = temp | data;
+	GPIO_PORTK_DATA_R = temp;
+}
+
+// Função PortM_Output
+// Escreve na porta M
+// Parâmetro de entrada: Valor a ser escrito na porta M
+// Parâmetro de saída: Não tem
+void PortM_Output (uint32_t data)
+{
+	// Escrita amigável
+	uint32_t temp;
+	temp = GPIO_PORTM_DATA_R & 0x08; // Zerar PM2:PM0
+	temp = temp | data;
+	GPIO_PORTM_DATA_R = temp;
+}
+
