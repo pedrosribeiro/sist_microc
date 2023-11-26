@@ -43,7 +43,7 @@ void LCD_Instruction (uint32_t inst)
 // Parâmetro de saída: Não tem
 void LCD_Data (uint32_t data)
 {
-	PortM_Output(0x04); 	// Ativa o modo de dados (EN=1, RW=0, RS=1)
+	PortM_Output(0x05); 	// Ativa o modo de dados (EN=1, RW=0, RS=1)
 	
 	PortK_Output(data);		// Dado
 	SysTick_Wait1ms(10); 	// Delay de 10ms para executar

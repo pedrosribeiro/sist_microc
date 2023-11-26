@@ -15,7 +15,7 @@ extern int PWM_STATE;
 // Inicializa o Timer 0
 // Parâmetro de entrada: Não tem
 // Parâmetro de saída: Não tem
-void Timer_Init(void)
+void Timer_Init (void)
 {
 	// 1. Habilitar o clock do timer 0 e esperar até estar pronto para uso.
 	SYSCTL_RCGCTIMER_R |= 0x1;
@@ -41,7 +41,7 @@ void Timer_Init(void)
 	TIMER0_CTL_R |= 0x1;
 }
 
-void Timer0A_Handler()
+void Timer0A_Handler (void)
 {
 	TIMER0_ICR_R  |= 0x1;				// Limpa a flag de interrupção do timer 0
 	

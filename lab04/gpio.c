@@ -113,6 +113,15 @@ void PortF_Output (uint32_t data)
 	GPIO_PORTF_AHB_DATA_R = temp;
 }
 
+// Função PortJ_Input
+// Lê  a porta J
+// Parâmetro de entrada: Não tem
+// Parâmetro de saída: Valor lido na porta J
+uint32_t PortJ_Input (void)
+{
+	return GPIO_PORTJ_AHB_DATA_R;
+}
+
 void GPIOPortJ_Handler (void)
 {
 	RESET_FLAG = 1;			// Raise flag
