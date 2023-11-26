@@ -14,6 +14,14 @@
 #define GPIO_PORTM (0x00000800)	// SYSCTL_PPGPIO_P11
 #define GPIO_PORTP (0x00002000)	// SYSCTL_PPGPIO_P13
 
+// Declarations
+void LCD_Reset (void);
+void LCD_WriteString (char* str);
+void SysTick_Wait1ms(uint32_t delay);
+
+// Global Flags (external)
+extern volatile int RESET_FLAG;
+
 // -------------------------------------------------------------------------------
 // Função GPIO_Init
 // Inicializa os ports E, F, J, K, L, M e P
@@ -103,6 +111,26 @@ void PortF_Output (uint32_t data)
 	temp = GPIO_PORTF_AHB_DATA_R & 0xFB;	// Zerar tudo exceto PF2
 	temp = temp | data;
 	GPIO_PORTF_AHB_DATA_R = temp;
+}
+
+void GPIOPortJ_Handler (void)
+{
+	RESET_FLAG = 1;			// Raise flag
+	TIMER0_CTL_R = 0x0; // Desabilita o timer 0
+	PortF_Output(0x00); // Disable L293
+	
+	// Limpa a flag de interrupção
+	int temp;
+	temp = 0x1;
+	temp |= GPIO_PORTJ_AHB_ICR_R;
+	GPIO_PORTJ_AHB_ICR_R = temp;
+	
+	// Imprime mensagem de reset
+	LCD_Reset();
+	LCD_WriteString("    Cancelado   ");
+	
+	// Aguarda 0,5s
+	SysTick_Wait1ms(500);
 }
 
 // Função PortK_Output

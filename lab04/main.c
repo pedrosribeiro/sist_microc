@@ -18,6 +18,8 @@ void SysTick_Init(void);
 // Global Flags
 int PWM_HIGH;
 int PWM_STATE = 0;
+volatile int RESET_FLAG = 0;
+volatile int DIRECTION_FLAG = 0;
 
 // Função Main
 // Loop principal
