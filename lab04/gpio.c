@@ -80,15 +80,29 @@ void GPIO_Init(void)
 	// 7. Habilitar resistor de pull-up interno, setar PUR para 1
 	GPIO_PORTJ_AHB_PUR_R = 0x3;		// PJ1 e PJ0
 	GPIO_PORTL_PUR_R = 0xF;				// PL3:PL0
+	
+	// 8. Interrupções
+	GPIO_PORTJ_AHB_IM_R		= 0x00;
+	GPIO_PORTJ_AHB_IS_R		= 0x00;
+	GPIO_PORTJ_AHB_IBE_R	= 0x00;
+	GPIO_PORTJ_AHB_IEV_R	= 0x00;
+	GPIO_PORTJ_AHB_ICR_R	= 0x01;
+	GPIO_PORTJ_AHB_IM_R		= 0x01;
+	NVIC_EN1_R						= 0x80000;		// 2_1 << 19
+	NVIC_PRI12_R					= 0xA0000000;	// 2_5 << 29
 }
 
-// Função PortL_Input
-// Lê  a porta L
-// Parâmetro de entrada: Não tem
-// Parâmetro de saída: Valor lido na porta L
-uint32_t PortL_Input (void)
+// Função PortF_Output
+// Escreve na porta F
+// Parâmetro de entrada: Valor a ser escrito na porta F
+// Parâmetro de saída: Não tem
+void PortF_Output (uint32_t data)
 {
-	return GPIO_PORTL_DATA_R;
+	// Escrita amigável
+	uint32_t temp;
+	temp = GPIO_PORTF_AHB_DATA_R & 0xFB;	// Zerar tudo exceto PF2
+	temp = temp | data;
+	GPIO_PORTF_AHB_DATA_R = temp;
 }
 
 // Função PortK_Output
@@ -102,6 +116,15 @@ void PortK_Output (uint32_t data)
 	temp = GPIO_PORTK_DATA_R & 0x00;
 	temp = temp | data;
 	GPIO_PORTK_DATA_R = temp;
+}
+
+// Função PortL_Input
+// Lê  a porta L
+// Parâmetro de entrada: Não tem
+// Parâmetro de saída: Valor lido na porta L
+uint32_t PortL_Input (void)
+{
+	return GPIO_PORTL_DATA_R;
 }
 
 // Função PortM_Output
