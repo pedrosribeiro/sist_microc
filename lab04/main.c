@@ -23,6 +23,7 @@ typedef enum MotorState
 // Declarations
 void PLL_Init(void);
 void SysTick_Init(void);
+void SysTick_Wait1ms(uint32_t delay);
 void Process_State (MotorStates states);
 
 // Global Flags
@@ -51,6 +52,8 @@ int main(void)
 
 void Process_State (MotorStates states)
 {
+	int key = 0xFF;
+	
 	while (1)
 	{
 		if (RESET_FLAG == 1)	// Reseta flags e variáveis
@@ -69,10 +72,23 @@ void Process_State (MotorStates states)
 				LCD_WriteString("Motor parado    ");
 				LCD_Line2();
 				LCD_WriteString("Press any key   ");
+			
+				while (key == 0xFF && RESET_FLAG == 0)	// Mantém o loop enquanto nenhuma tecla for pressionada
+				{
+					key = MatrixKeyboard_Map();						// Lê o teclado
+				}
+				
+				states = SelectingState;								// Troca de estado
+				SysTick_Wait1ms(100);										// Aguarda 1s antes de ir para o outro estado
+			
 				break;
 			
 			case SelectingState:
-				//
+				LCD_Reset();
+				LCD_WriteString("1. Modo teclado ");
+				LCD_Line2();
+				LCD_WriteString("2. Modo potencio");
+			
 				break;
 			
 			case UsingKeyboardState:
