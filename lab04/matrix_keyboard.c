@@ -13,29 +13,29 @@ uint32_t MatrixKeyboard_Map (void)
 	// Mapeia as 4 colunas do teclado matricial
 	for (int i = 0; i < 4; i++)
 	{
-		temp = 0x0F;						// 0x0F = 0000 1111
+		temp = 0x0F;						// 0x0F = 2_00001111
 		
 		if (i == 0)							// Primeira coluna
 		{
-			col = 0xE0;						// 0x0E = 1110 0000 
+			col = 0xE0;						// 0x0E = 2_11100000 
 			PortM_Output(col);
 		}
 		
 		if (i == 1)							// Segunda coluna
 		{
-			col = 0xD0;						// 0xD0 = 1101 0000
+			col = 0xD0;						// 0xD0 = 2_11010000
 			PortM_Output(col);
 		}
 		
 		if (i == 2)							// Terceira coluna
 		{
-			col = 0xB0;						// 0xB0 = 1011 0000
+			col = 0xB0;						// 0xB0 = 2_10110000
 			PortM_Output(col);
 		}
 		
 		if (i == 3)							// Quarta coluna
 		{
-			col = 0x70;						// 0xB0 = 0111 0000
+			col = 0x70;						// 0xB0 = 2_01110000
 			PortM_Output(col);
 		}
 		
