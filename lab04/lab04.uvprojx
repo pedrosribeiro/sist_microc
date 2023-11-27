@@ -444,6 +444,16 @@
               <FileType>5</FileType>
               <FilePath>.\timer.h</FilePath>
             </File>
+            <File>
+              <FileName>matrix_keyboard.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\matrix_keyboard.c</FilePath>
+            </File>
+            <File>
+              <FileName>matrix_keyboard.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\matrix_keyboard.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

@@ -10,6 +10,7 @@
 #include "ad_converter.h"
 #include "lcd.h"
 #include "timer.h"
+#include "matrix_keyboard.h"
 
 typedef enum MotorState
 {

@@ -136,7 +136,7 @@ void GPIOPortJ_Handler (void)
 	
 	// Imprime mensagem de reset
 	LCD_Reset();
-	LCD_WriteString("    Cancelado   ");
+	LCD_WriteString("   Cancelado    ");
 	
 	// Aguarda 0,5s
 	SysTick_Wait1ms(500);
