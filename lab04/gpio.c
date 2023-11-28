@@ -100,6 +100,19 @@ void GPIO_Init(void)
 	NVIC_PRI12_R					= 0xA0000000;	// 2_5 << 29
 }
 
+// Função PortE_Output
+// Escreve na porta E
+// Parâmetro de entrada: Valor a ser escrito na porta E
+// Parâmetro de saída: Não tem
+void PortE_Output (uint32_t data)
+{
+	// Escrita amigável
+	uint32_t temp;
+	temp = GPIO_PORTE_AHB_DATA_R & 0xFC;	// Zerar PE1 e PE0
+	temp = temp | data;
+	GPIO_PORTE_AHB_DATA_R = temp;
+}
+
 // Função PortF_Output
 // Escreve na porta F
 // Parâmetro de entrada: Valor a ser escrito na porta F
@@ -108,7 +121,7 @@ void PortF_Output (uint32_t data)
 {
 	// Escrita amigável
 	uint32_t temp;
-	temp = GPIO_PORTF_AHB_DATA_R & 0xFB;	// Zerar tudo exceto PF2
+	temp = GPIO_PORTF_AHB_DATA_R & 0xFB;	// Zerar PF2
 	temp = temp | data;
 	GPIO_PORTF_AHB_DATA_R = temp;
 }

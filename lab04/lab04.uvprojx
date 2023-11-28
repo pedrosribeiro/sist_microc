@@ -454,6 +454,16 @@
               <FileType>5</FileType>
               <FilePath>.\matrix_keyboard.h</FilePath>
             </File>
+            <File>
+              <FileName>pwm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\pwm.c</FilePath>
+            </File>
+            <File>
+              <FileName>pwm.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\pwm.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

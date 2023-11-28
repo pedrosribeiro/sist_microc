@@ -6,6 +6,10 @@
 void PortM_Output (uint32_t data);
 uint32_t PortL_Input (void);
 
+// Função MatrixKeyboard_Map
+// Identifica qual tecla está sendo pressionada no teclado matricial
+// Parâmetro de entrada: Não tem
+// Parâmetro de saída: A tecla pressionada
 uint32_t MatrixKeyboard_Map (void)
 {
 	uint32_t temp, line, col;

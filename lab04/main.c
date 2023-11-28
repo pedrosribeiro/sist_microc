@@ -11,6 +11,7 @@
 #include "lcd.h"
 #include "timer.h"
 #include "matrix_keyboard.h"
+#include "pwm.h"
 
 typedef enum MotorState
 {
@@ -53,6 +54,7 @@ int main(void)
 void Process_State (MotorStates states)
 {
 	int key = 0xFF;
+	int adc = 0;
 	
 	while (1)
 	{
@@ -116,11 +118,32 @@ void Process_State (MotorStates states)
 				LCD_Line2();
 				LCD_WriteString("selecionado     ");
 			
-				while (1)
-				{
-					//
-				}
+				SysTick_Wait1ms(100);								// Aguarda 0,1s
+				
+				LCD_Reset();
+				LCD_WriteString("1. Horário      ");
+				LCD_Line2();
+				LCD_WriteString("2. Anti-horário ");
 			
+				key = 0xFF;
+			
+				// Mantém o loop enquanto a tecla pressionada não for 1 ou 2
+				// 0xEE = 2_11101110, 0xDE = 2_11011110
+				while (key != 0xEE && key != 0xDE)
+				{
+					key = MatrixKeyboard_Map();		// Lê o teclado
+				}
+				
+				if (key == 0xEE) 								// Tecla 1
+				{
+					DIRECTION_FLAG = 1;
+				} else													// Tecla 2
+				{
+					DIRECTION_FLAG = 2;
+				}
+				
+				//
+		
 				break;
 			
 			case UsingPotentiometerState:
@@ -129,10 +152,8 @@ void Process_State (MotorStates states)
 				LCD_Line2();
 				LCD_WriteString("ro selecionado  ");
 			
-				while (1)
-				{
-					//
-				}
+				adc = AD_Convert();
+				PWM(adc);
 			
 				break;
 		}

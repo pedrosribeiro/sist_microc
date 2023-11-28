@@ -37,19 +37,19 @@ uint16_t AD_Convert (void)
 	uint16_t temp = 0x0FFF;
 	
 	// Configura o Registrador de Início Sequencial do ADC
-	ADC0_PSSI_R = 0x8;
+	ADC0_PSSI_R = 0x08;
 	
 	// Aguarda até que esteja pronto para uso
-	while ((ADC0_RIS_R & 0x8) != 0x8)
+	while ((ADC0_RIS_R & 0x08) != 0x08)
 	{
 		//
 	}
 	
 	// Lê o resultado da conversão
-	temp = ADC0_SSFIFO3_R & temp;
+	temp &= ADC0_SSFIFO3_R;
 	
 	// Limpa o bit de interrupção associado à conclusão da conversão
-	ADC0_ISC_R = 0x0008;
+	ADC0_ISC_R = 0x08;
 	
 	return temp;
 }
