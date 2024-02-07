@@ -28,11 +28,11 @@ void SysTick_Wait1ms(uint32_t delay);
 void Process_State (MotorStates states);
 
 // Global Flags
-int PWM_HIGH;
+int PWM_HIGH = 80000;
 int PWM_STATE = 0;
-int MOTOR_ACTIVE = 0;
+int MOTOR_ACTIVE = 1;
 volatile int RESET_FLAG = 0;
-volatile int DIRECTION_FLAG = 0;
+volatile int DIRECTION_FLAG = 1;
 
 // Função Main
 // Loop principal
@@ -62,8 +62,8 @@ void Process_State (MotorStates states)
 		{
 			RESET_FLAG = 0;
 			PWM_STATE = 0;
-			DIRECTION_FLAG = 0;
-			MOTOR_ACTIVE = 0;
+			DIRECTION_FLAG = 1;
+			MOTOR_ACTIVE = 1;
 			states = StoppedState;
 		}
 		
@@ -142,7 +142,21 @@ void Process_State (MotorStates states)
 					DIRECTION_FLAG = 2;
 				}
 				
-				//
+				PortF_Output(0x04);
+			
+				while (RESET_FLAG == 0)
+				{
+					key = MatrixKeyboard_Map();
+					if (key == 0xEE) {DIRECTION_FLAG = 1;}
+					if (key == 0xDE) {DIRECTION_FLAG = 2;}
+					
+					adc = AD_Convert();
+					PWM(adc);
+					
+					SysTick_Wait1ms(100);
+				}
+				
+				PortF_Output(0x00);
 		
 				break;
 			
@@ -152,9 +166,29 @@ void Process_State (MotorStates states)
 				LCD_Line2();
 				LCD_WriteString("ro selecionado  ");
 			
-				adc = AD_Convert();
-				PWM(adc);
+				PortF_Output(0x04);
 			
+				while (RESET_FLAG == 0)
+				{
+					adc = AD_Convert();
+					
+					if (adc < 2048)
+					{
+						DIRECTION_FLAG = 1;
+						adc = 4096 * (2048 - adc)/2048;
+					} else
+					{
+						DIRECTION_FLAG = 2;
+						adc = 2*(adc - 2048);
+					}
+					
+					PWM(adc);
+					
+					SysTick_Wait1ms(100);
+				}
+				
+				PortF_Output(0x00);
+				
 				break;
 		}
 	}

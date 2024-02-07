@@ -6,10 +6,12 @@
 
 // Declarations
 void PortF_Output (uint32_t data);
+void PortE_Output (uint32_t data);
 
 // Global Flags (external)
 extern int PWM_HIGH;
 extern int PWM_STATE;
+extern volatile int DIRECTION_FLAG;
 
 // Função Timer_Init
 // Inicializa o Timer 0
@@ -48,12 +50,13 @@ void Timer0A_Handler (void)
 	if (PWM_STATE == 1)					// Alto
 	{
 		PWM_STATE = 0;
-		PortF_Output(0x00);
+		PortE_Output(0x00);
 		TIMER0_TAILR_R = 80000 - PWM_HIGH;
 	}
 	else												// Baixo
 	{
-		PortF_Output(0x04);
+		if (DIRECTION_FLAG == 1){PortE_Output(0x02);}
+		if (DIRECTION_FLAG == 2){PortE_Output(0x01);}
 		TIMER0_TAILR_R = PWM_HIGH;
 		PWM_STATE = 1;
 	}

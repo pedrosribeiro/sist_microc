@@ -1,0 +1,133 @@
+<mxfile host="app.diagrams.net" modified="2023-11-28T14:15:50.479Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36" etag="Xu_yiOjYP3uygMJBB6f2" version="22.1.4" type="device">
+  <diagram id="C5RBs43oDa-KdzZeNtuy" name="Page-1">
+    <mxGraphModel dx="969" dy="522" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="WIyWlLk6GJQsqaUBKTNV-1" parent="WIyWlLk6GJQsqaUBKTNV-0" />
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="twrKK4nmHX0RxhqZ32AP-0" target="twrKK4nmHX0RxhqZ32AP-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-0" value="Início" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="354" y="50" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="twrKK4nmHX0RxhqZ32AP-1" target="twrKK4nmHX0RxhqZ32AP-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-1" value="Inicializa GPIO, LCD, Timer, Conversor AD, etc" style="whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="354" y="220" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="twrKK4nmHX0RxhqZ32AP-5" target="twrKK4nmHX0RxhqZ32AP-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-9" value="Motor parado" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="twrKK4nmHX0RxhqZ32AP-8">
+          <mxGeometry x="0.0222" y="4" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-5" value="Estado do motor?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="374" y="350" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-11" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="twrKK4nmHX0RxhqZ32AP-7" target="twrKK4nmHX0RxhqZ32AP-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-7" value="Pede para o usuário digitar qualquer tecla" style="whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="354" y="520" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="twrKK4nmHX0RxhqZ32AP-10" target="twrKK4nmHX0RxhqZ32AP-7">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="494" y="690" />
+              <mxPoint x="494" y="550" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-13" value="Não" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="twrKK4nmHX0RxhqZ32AP-12">
+          <mxGeometry x="-0.03" y="-5" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="twrKK4nmHX0RxhqZ32AP-10" target="twrKK4nmHX0RxhqZ32AP-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-10" value="Tecla pressionada?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="374" y="650" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="twrKK4nmHX0RxhqZ32AP-14" target="twrKK4nmHX0RxhqZ32AP-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="twrKK4nmHX0RxhqZ32AP-14" target="twrKK4nmHX0RxhqZ32AP-20">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-14" value="Espera até que usuário digite 1 ou 2 para teclado ou potenciômetro, respectivamente" style="whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="339" y="800" width="150" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="twrKK4nmHX0RxhqZ32AP-18" target="twrKK4nmHX0RxhqZ32AP-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-18" value="1 foi pressionado?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="170" y="805" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="twrKK4nmHX0RxhqZ32AP-20" target="twrKK4nmHX0RxhqZ32AP-24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-20" value="2 foi pressionado?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="570" y="805" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-27" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="twrKK4nmHX0RxhqZ32AP-22" target="twrKK4nmHX0RxhqZ32AP-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-22" value="Troca para o modo teclado e pede sentido de rotação" style="whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="150" y="975" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="twrKK4nmHX0RxhqZ32AP-24" target="twrKK4nmHX0RxhqZ32AP-26">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-24" value="Troca para o modo potenciômetro" style="whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="550" y="975" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-30" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="twrKK4nmHX0RxhqZ32AP-26" target="twrKK4nmHX0RxhqZ32AP-29">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-26" value="Lê o potenciômetro, faz a conversão AD e altera o duty cycle" style="whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="353.5" y="975" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-34" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="twrKK4nmHX0RxhqZ32AP-29" target="twrKK4nmHX0RxhqZ32AP-33">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-35" value="Sim" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="twrKK4nmHX0RxhqZ32AP-34">
+          <mxGeometry x="-0.1357" y="-4" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-29" value="PJ0 foi pressionado?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="373.5" y="1105" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.919;entryY=1.043;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" target="twrKK4nmHX0RxhqZ32AP-26">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="453.49619047619035" y="1148.4038095238097" as="sourcePoint" />
+            <mxPoint x="504.76" y="1080.0000000000002" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="464" y="1148" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-32" value="Não" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="twrKK4nmHX0RxhqZ32AP-31">
+          <mxGeometry x="-0.0536" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-36" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="WIyWlLk6GJQsqaUBKTNV-1" source="twrKK4nmHX0RxhqZ32AP-33" target="twrKK4nmHX0RxhqZ32AP-5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="70" y="1145" />
+              <mxPoint x="70" y="390" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="twrKK4nmHX0RxhqZ32AP-33" value="Reseta todas as flags e coloca o motor no estado inicial" style="whiteSpace=wrap;html=1;" vertex="1" parent="WIyWlLk6GJQsqaUBKTNV-1">
+          <mxGeometry x="193.5" y="1115" width="120" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

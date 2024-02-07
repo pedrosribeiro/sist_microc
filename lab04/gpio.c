@@ -78,7 +78,7 @@ void GPIO_Init(void)
 		
 	// 6. Setar os bits de DEN para habilitar I/O digital	
 	GPIO_PORTE_AHB_DEN_R = 0x03;		// 0x03 = 2_00000011: PE1 e PE0
-	GPIO_PORTF_AHB_DEN_R = 0x04;		// 0x04 = 2_00000100: PF3
+	GPIO_PORTF_AHB_DEN_R = 0x04;		// 0x04 = 2_00000100: PF2
 	GPIO_PORTJ_AHB_DEN_R = 0x03;		// 0x03 = 2_00000011: PJ1 e PJ0
 	GPIO_PORTK_DEN_R = 0xFF;				// 0xFF = 2_11111111: PK7:PK0
 	GPIO_PORTL_DEN_R = 0x0F;				// 0x0F = 2_00001111: PL3:PL0
@@ -138,8 +138,8 @@ uint32_t PortJ_Input (void)
 void GPIOPortJ_Handler (void)
 {
 	RESET_FLAG = 1;			// Raise flag
-	TIMER0_CTL_R = 0x0; // Desabilita o timer 0
-	PortF_Output(0x00); // Disable L293
+	//TIMER0_CTL_R = 0x0; // Desabilita o timer 0
+	//PortF_Output(0x00); // Disable L293
 	
 	// Limpa a flag de interrupção
 	int temp;
